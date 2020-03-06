@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -67,7 +68,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	@SuppressWarnings("unused")
-	private Map<String, List<ResourceType>> requestTypeToResourceType;
+	private Map<String, Set<ResourceType>> requestTypeToResourceType;
 
 	@PostConstruct
 	private void getFhirResources() {
@@ -125,7 +126,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	private List<Bundle> getResourceBundlesFromRemoteServer(DataRequestAttempt dataRequestAttempt) {
-		Map<String, List<ResourceType>> fhirResourcesMap = fhirResources.getAllFhirGroupsToResourceTypes();
+		Map<String, Set<ResourceType>> fhirResourcesMap = fhirResources.getAllFhirGroupsToResourceTypes();
 		log.trace("fhir resource map is: " + fhirResourcesMap);
 		String dataRequestType = dataRequestAttempt.getDataRequestTask().getDataRequestType();
 		log.debug("data request type is: " + dataRequestType);

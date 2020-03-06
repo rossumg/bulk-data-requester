@@ -7,6 +7,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -28,17 +30,28 @@ public class DataRequestTask extends AuditableEntity<Long> {
 	private static final Byte DEFAULT_RETRY_ATTEMPTS = 3;
 	private static final Integer DEFAULT_TIMEOUT = 60 * 2;
 
+	// validation
+	@NotBlank
 	private String dataRequestType;
 
+	// persistence
 	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "remote_server_id", nullable = false)
 	@OnDelete(action = OnDeleteAction.CASCADE)
+	// validation
+	@NotNull
 	private Server remoteServer;
 
+	// validation
+	@NotNull
 	private Byte dataRequestAttemptRetries = DEFAULT_RETRY_ATTEMPTS;
 
+	// validation
+	@NotNull
 	private Integer dataRequestAttemptTimeout = DEFAULT_TIMEOUT;
 
+	// validation
+	@NotNull
 	private Integer dataRequestInterval = DEFAULT_INTERVAL;
 
 	DataRequestTask() {

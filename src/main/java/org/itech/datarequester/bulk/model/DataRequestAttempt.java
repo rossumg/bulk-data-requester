@@ -7,6 +7,7 @@ import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -35,19 +36,28 @@ public class DataRequestAttempt extends AuditableEntity<Long> {
 		}
 	}
 
+	// persistence
 	@Column(updatable = false)
-	Instant startTime;
+	// validation
+	@NotNull
+	private Instant startTime;
 
 	@Column
-	Instant endTime;
+	private Instant endTime;
 
+	// persistence
 	@ManyToOne
 	@JoinColumn(name = "dataRequest_task_id", nullable = false, updatable = false)
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	DataRequestTask dataRequestTask;
+	// validation
+	@NotNull
+	private DataRequestTask dataRequestTask;
 
+	// persistence
 	@Convert(converter = DataRequestStatusConverter.class)
-	DataRequestStatus dataRequestStatus;
+	// validation
+	@NotNull
+	private DataRequestStatus dataRequestStatus;
 
 	DataRequestAttempt() {
 	}

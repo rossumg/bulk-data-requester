@@ -26,17 +26,17 @@ public class DataRequestServerServiceImpl implements DataRequestServerService {
 	}
 
 	@Override
-	public Server saveNewServerDefaultDataRequestTask(String identifier, String serverAddress) {
+	public Server saveNewServerDefaultDataRequestTask(String name, String serverAddress) {
 		log.debug("saving new server with default dataRequest task");
-		Server addedServer = serverService.saveNewServer(identifier, serverAddress);
+		Server addedServer = serverService.saveNewServer(name, serverAddress);
 		saveDefaultTaskToServer(addedServer);
 		return addedServer;
 	}
 
 	@Override
-	public Server saveNewServerDefaultDataRequestTask(String identifier, URI dataRequestUrl) {
+	public Server saveNewServerDefaultDataRequestTask(String name, URI dataRequestUrl) {
 		log.debug("saving new server with default dataRequest task");
-		Server addedServer = serverService.saveNewServer(identifier, dataRequestUrl);
+		Server addedServer = serverService.saveNewServer(name, dataRequestUrl);
 		saveDefaultTaskToServer(addedServer);
 		return addedServer;
 	}

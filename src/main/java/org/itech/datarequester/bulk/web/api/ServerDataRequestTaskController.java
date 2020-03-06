@@ -2,10 +2,11 @@ package org.itech.datarequester.bulk.web.api;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.itech.datarequester.bulk.model.DataRequestTask;
 import org.itech.datarequester.bulk.service.DataRequestServerService;
 import org.itech.datarequester.bulk.web.api.dto.AddDataRequestTaskDTO;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,14 +28,13 @@ public class ServerDataRequestTaskController {
 	@GetMapping
 	public ResponseEntity<List<DataRequestTask>> getDataRequestTasksForServer(
 			@PathVariable(value = "serverId") Long serverId) {
-		return new ResponseEntity<>(dataRequestServerService.getDataRequestTasksForServer(serverId),
-				HttpStatus.OK);
+		return ResponseEntity.ok(dataRequestServerService.getDataRequestTasksForServer(serverId));
 	}
 
 	@PostMapping
 	public ResponseEntity<String> addDataRequestTaskForServer(@PathVariable(value = "serverId") Long serverId,
-			@RequestBody AddDataRequestTaskDTO dto) {
+			@RequestBody @Valid AddDataRequestTaskDTO dto) {
 		dataRequestServerService.saveTaskToServer(serverId, dto.getDataRequestType(), dto.getInterval());
-		return new ResponseEntity<>("success", HttpStatus.OK);
+		return ResponseEntity.ok("success");
 	}
 }

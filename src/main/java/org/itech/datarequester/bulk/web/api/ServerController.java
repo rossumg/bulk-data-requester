@@ -2,12 +2,13 @@ package org.itech.datarequester.bulk.web.api;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.hibernate.ObjectNotFoundException;
 import org.itech.datarequester.bulk.service.DataRequestServerService;
 import org.itech.datarequester.bulk.web.api.dto.CreateServerDTO;
 import org.itech.fhircore.dao.ServerDAO;
 import org.itech.fhircore.model.Server;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,27 +33,27 @@ public class ServerController {
 
 	@GetMapping
 	public ResponseEntity<List<Server>> getServers() {
-		return new ResponseEntity<>(serverRepository.findAll(), HttpStatus.OK);
+		return ResponseEntity.ok(serverRepository.findAll());
 	}
 
 	@PostMapping
-	public ResponseEntity<Server> createServer(@RequestBody CreateServerDTO dto) {
-		Server newServer = dataRequestServerService.saveNewServerDefaultDataRequestTask(dto.getIdentifier(),
+	public ResponseEntity<Server> createServer(@RequestBody @Valid CreateServerDTO dto) {
+		Server newServer = dataRequestServerService.saveNewServerDefaultDataRequestTask(dto.getName(),
 				dto.getServerAddress());
-		return new ResponseEntity<>(newServer, HttpStatus.OK);
+		return ResponseEntity.ok(newServer);
 	}
 
 	@GetMapping(value = "/{id}")
 	public ResponseEntity<Server> getServer(@PathVariable(value = "id") Long id) {
 		Server server = serverRepository.findById(id)
 				.orElseThrow(() -> new ObjectNotFoundException(id, Server.class.getName()));
-		return new ResponseEntity<>(server, HttpStatus.OK);
+		return ResponseEntity.ok(server);
 	}
 
 	@DeleteMapping(value = "/{id}")
 	public ResponseEntity<String> deleteServer(@PathVariable(value = "id") Long id) {
 		serverRepository.deleteById(id);
-		return new ResponseEntity<>("success", HttpStatus.OK);
+		return ResponseEntity.ok("deleted");
 	}
 
 }

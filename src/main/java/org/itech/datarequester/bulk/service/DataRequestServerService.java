@@ -8,9 +8,9 @@ import org.itech.fhircore.model.Server;
 
 public interface DataRequestServerService {
 
-	Server saveNewServerDefaultDataRequestTask(String identifier, String serverAddress);
+	Server saveNewServerDefaultDataRequestTask(String name, String serverAddress);
 
-	Server saveNewServerDefaultDataRequestTask(String identifier, URI dataRequestUrl);
+	Server saveNewServerDefaultDataRequestTask(String name, URI dataRequestUrl);
 
 	void saveDefaultTaskToServer(Server server);
 
