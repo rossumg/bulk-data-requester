@@ -7,8 +7,8 @@ import org.itech.datarequester.bulk.dao.DataRequestAttemptDAO;
 import org.itech.datarequester.bulk.model.DataRequestAttempt;
 import org.itech.datarequester.bulk.model.DataRequestTask;
 import org.itech.datarequester.bulk.service.DataRequestCheckerService;
-import org.itech.datarequester.bulk.service.DataRequestServerService;
 import org.itech.datarequester.bulk.service.DataRequestService;
+import org.itech.datarequester.bulk.service.data.model.DataRequestTaskService;
 import org.itech.fhircore.model.Server;
 import org.itech.fhircore.service.ServerService;
 import org.springframework.data.domain.PageRequest;
@@ -23,16 +23,17 @@ import lombok.extern.slf4j.Slf4j;
 public class DataRequestCheckerServiceImpl implements DataRequestCheckerService {
 
 	private ServerService serverService;
-	private DataRequestServerService dataRequestServerService;
+	private DataRequestTaskService serverDataRequestTaskService;
 	private DataRequestAttemptDAO dataRequestAttemptRepository;
 	private DataRequestService dataRequestService;
 
-	public DataRequestCheckerServiceImpl(ServerService serverService, DataRequestServerService dataRequestServerService,
+	public DataRequestCheckerServiceImpl(ServerService serverService,
+			DataRequestTaskService serverDataRequestTaskService,
 			DataRequestAttemptDAO dataRequestAttemptRepository,
 			DataRequestService dataRequestService) {
 		log.info(this.getClass().getName() + " has started");
 		this.serverService = serverService;
-		this.dataRequestServerService = dataRequestServerService;
+		this.serverDataRequestTaskService = serverDataRequestTaskService;
 		this.dataRequestAttemptRepository = dataRequestAttemptRepository;
 		this.dataRequestService = dataRequestService;
 	}
@@ -40,15 +41,15 @@ public class DataRequestCheckerServiceImpl implements DataRequestCheckerService 
 	@Override
 	@Scheduled(initialDelay = 10 * 1000, fixedRate = 60 * 1000)
 	@Transactional
-	public void checkDataRequest() {
+	public void checkDataRequestNeedsRunning() {
 		log.debug("checking if servers need data request to be made");
 
 		Instant now = Instant.now();
 
 		Iterable<Server> servers = serverService.getDAO().findAll();
 		for (Server server : servers) {
-			for (DataRequestTask dataRequestTask : dataRequestServerService
-					.getDataRequestTasksForServer(server.getId())) {
+			for (DataRequestTask dataRequestTask : serverDataRequestTaskService.getDAO()
+					.findDataRequestTasksFromServer(server.getId())) {
 				Instant nextDataRequestTime;
 				List<DataRequestAttempt> latestDataRequestAttempts = dataRequestAttemptRepository
 						.findLatestDataRequestAttemptsByDataRequestTask(PageRequest.of(0, 1), dataRequestTask.getId());

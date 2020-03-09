@@ -11,7 +11,7 @@ import org.springframework.scheduling.quartz.QuartzJobBean;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class CheckTimeoutJob extends QuartzJobBean {
+public class DataRequestTimeoutJob extends QuartzJobBean {
 
 	// using @Autowired as constructor autowiring wont work as job is made by
 	// Quartz, not Spring

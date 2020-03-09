@@ -6,5 +6,4 @@ public interface DataRequestService {
 
 	void runDataRequestTask(Long dataRequestId);
 
-
 }

@@ -1,13 +1,14 @@
 package org.itech.datarequester.bulk.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
-
-import javax.annotation.PostConstruct;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -18,13 +19,14 @@ import org.itech.datarequester.bulk.dao.DataRequestTaskDAO;
 import org.itech.datarequester.bulk.model.DataRequestAttempt;
 import org.itech.datarequester.bulk.model.DataRequestAttempt.DataRequestStatus;
 import org.itech.datarequester.bulk.model.DataRequestTask;
-import org.itech.datarequester.bulk.service.DataRequestServerService;
 import org.itech.datarequester.bulk.service.DataRequestService;
 import org.itech.datarequester.bulk.service.DataRequestStatusService;
 import org.itech.datarequester.bulk.service.data.model.DataRequestAttemptService;
-import org.itech.fhircore.dao.RemoteIdToLocalIdDAO;
-import org.itech.fhircore.model.RemoteIdToLocalId;
+import org.itech.datarequester.bulk.service.data.model.DataRequestTaskService;
+import org.itech.fhircore.dao.ServerResourceIdMapDAO;
+import org.itech.fhircore.model.ResourceSearchParam;
 import org.itech.fhircore.model.Server;
+import org.itech.fhircore.model.ServerResourceIdMap;
 import org.itech.fhircore.service.FhirResourceGroupService;
 import org.itech.fhircore.service.ServerService;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,23 +44,23 @@ import lombok.extern.slf4j.Slf4j;
 public class DataRequestServiceImpl implements DataRequestService {
 
 	private ServerService serverService;
-	private DataRequestServerService dataRequestServerService;
+	private DataRequestTaskService serverDataRequestTaskService;
 	private DataRequestTaskDAO dataRequestTaskDAO;
 	private DataRequestAttemptService dataRequestAttemptService;
 	private DataRequestStatusService dataRequestStatusService;
 	private FhirContext fhirContext;
 	private FhirResourceGroupService fhirResources;
-	private RemoteIdToLocalIdDAO remoteIdToLocalIdDAO;
+	private ServerResourceIdMapDAO remoteIdToLocalIdDAO;
 
 	@Value("${org.itech.destination-server}")
 	private String destinationServerPath;
 
-	public DataRequestServiceImpl(ServerService serverService, DataRequestServerService dataRequestServerService,
+	public DataRequestServiceImpl(ServerService serverService, DataRequestTaskService serverDataRequestTaskService,
 			DataRequestTaskDAO dataRequestTaskDAO, DataRequestAttemptService dataRequestAttemptService,
 			DataRequestStatusService dataRequestStatusService, FhirContext fhirContext,
-			FhirResourceGroupService fhirResources, RemoteIdToLocalIdDAO remoteIdToLocalIdDAO) {
+			FhirResourceGroupService fhirResources, ServerResourceIdMapDAO remoteIdToLocalIdDAO) {
 		this.serverService = serverService;
-		this.dataRequestServerService = dataRequestServerService;
+		this.serverDataRequestTaskService = serverDataRequestTaskService;
 		this.dataRequestTaskDAO = dataRequestTaskDAO;
 		this.dataRequestAttemptService = dataRequestAttemptService;
 		this.dataRequestStatusService = dataRequestStatusService;
@@ -67,35 +69,27 @@ public class DataRequestServiceImpl implements DataRequestService {
 		this.remoteIdToLocalIdDAO = remoteIdToLocalIdDAO;
 	}
 
-	@SuppressWarnings("unused")
-	private Map<String, Set<ResourceType>> requestTypeToResourceType;
-
-	@PostConstruct
-	private void getFhirResources() {
-		requestTypeToResourceType = fhirResources.getAllFhirGroupsToResourceTypes();
-	}
-
 	@Override
 	@Async
 	@Transactional
 	public synchronized void runDataRequestTasksForServer(Long serverId) {
-			Server server = serverService.getDAO().findById(serverId).get();
-			for (DataRequestTask dataRequestTask : dataRequestServerService
-					.getDataRequestTasksForServer(server.getId())) {
-				runDataRequestTask(dataRequestTask);
-				log.debug("finished sending request for dataRequestTask " + dataRequestTask.getId() + " for server "
-						+ serverId);
-			}
-			log.debug("finished sending requests for dataRequestTasks for server " + serverId);
+		Server server = serverService.getDAO().findById(serverId).get();
+		for (DataRequestTask dataRequestTask : serverDataRequestTaskService.getDAO()
+				.findDataRequestTasksFromServer(server.getId())) {
+			runDataRequestTask(dataRequestTask);
+			log.debug("finished sending request for dataRequestTask " + dataRequestTask.getId() + " for server "
+					+ serverId);
+		}
+		log.debug("finished sending requests for dataRequestTasks for server " + serverId);
 	}
 
 	@Override
 	@Async
 	@Transactional
 	public synchronized void runDataRequestTask(Long dataRequestTaskId) {
-			DataRequestTask dataRequestTask = dataRequestTaskDAO.findById(dataRequestTaskId).get();
-			runDataRequestTask(dataRequestTask);
-			log.debug("finished sending request for dataRequestTask " + dataRequestTask.getId());
+		DataRequestTask dataRequestTask = dataRequestTaskDAO.findById(dataRequestTaskId).get();
+		runDataRequestTask(dataRequestTask);
+		log.debug("finished sending request for dataRequestTask " + dataRequestTask.getId());
 	}
 
 	private void runDataRequestTask(DataRequestTask dataRequestTask) {
@@ -126,7 +120,8 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	private List<Bundle> getResourceBundlesFromRemoteServer(DataRequestAttempt dataRequestAttempt) {
-		Map<String, Set<ResourceType>> fhirResourcesMap = fhirResources.getAllFhirGroupsToResourceTypes();
+		Map<String, Map<ResourceType, Set<ResourceSearchParam>>> fhirResourcesMap = fhirResources
+				.getAllFhirGroupsToResourceTypesGrouped();
 		log.trace("fhir resource map is: " + fhirResourcesMap);
 		String dataRequestType = dataRequestAttempt.getDataRequestTask().getDataRequestType();
 		log.debug("data request type is: " + dataRequestType);
@@ -140,23 +135,41 @@ public class DataRequestServiceImpl implements DataRequestService {
 		List<Bundle> searchBundles = new ArrayList<>();
 		dataRequestStatusService.changeDataRequestAttemptStatus(dataRequestAttempt.getId(),
 				DataRequestStatus.REQUESTED);
-		for (ResourceType resourceType : fhirResourcesMap.get(dataRequestType)) {
-
+		for (Entry<ResourceType, Set<ResourceSearchParam>> resourceSearchParamsSet : fhirResourcesMap
+				.get(dataRequestType).entrySet()) {
+			Map<String, List<String>> searchParameters = createSearchParams(resourceSearchParamsSet.getKey(),
+					resourceSearchParamsSet.getValue());
 			IGenericClient sourceFhirClient = fhirContext.newRestfulGenericClient(
 					dataRequestAttempt.getDataRequestTask().getRemoteServer().getServerUrl().toString());
 			Bundle searchBundle = sourceFhirClient//
 					.search()//
-					.forResource(resourceType.name())//
+					.forResource(resourceSearchParamsSet.getKey().name())//
+					.whereMap(searchParameters)//
 					.lastUpdated(dateRange)//
 					.returnBundle(Bundle.class).execute();
 			log.trace("received json " + fhirContext.newJsonParser().encodeResourceToString(searchBundle));
-			log.debug("received " + searchBundle.getTotal() + " entries of " + resourceType);
+			log.debug("received " + searchBundle.getTotal() + " entries of " + resourceSearchParamsSet.getKey());
 			searchBundles.add(searchBundle);
 
 			// TODO add a check for timeout and if it happens, process in smaller chunks. Or
 			// just process in smaller chunks anyways
 		}
 		return searchBundles;
+	}
+
+	private Map<String, List<String>> createSearchParams(
+			ResourceType resourceType, Set<ResourceSearchParam> resourceSearchParams) {
+		Map<String, List<String>> searchParameters = new HashMap<>();
+
+		for (ResourceSearchParam resourceSearchParam : resourceSearchParams) {
+			if (resourceSearchParam.getParamName() != null) {
+				// here we are 'OR' ing
+				searchParameters.put(resourceSearchParam.getParamName(),
+						Arrays.asList(String.join(",", resourceSearchParam.getParamValues())));
+			}
+		}
+		log.debug("search parameters for " + resourceType + " are: " + searchParameters);
+		return searchParameters;
 	}
 
 	private Bundle createTransactionBundleFromSearchResults(DataRequestAttempt dataRequestAttempt,
@@ -201,13 +214,13 @@ public class DataRequestServiceImpl implements DataRequestService {
 			ResourceType resourceType) {
 		log.debug("checking if " + resourceType + " with id " + remoteResourceId + " from remote server "
 				+ remoteServerId + " already created on the local  server");
-		Optional<RemoteIdToLocalId> remoteIdToLocalId = remoteIdToLocalIdDAO
+		Optional<ServerResourceIdMap> serverResourceIdMap = remoteIdToLocalIdDAO
 				.findByServerIdAndResourceType(remoteServerId, resourceType);
-		if (remoteIdToLocalId.isEmpty()
-				|| !remoteIdToLocalId.get().getRemoteIdToLocalIdMap().containsKey(remoteResourceId)) {
+		if (serverResourceIdMap.isEmpty()
+				|| !serverResourceIdMap.get().getRemoteIdToLocalIdMap().containsKey(remoteResourceId)) {
 			return Optional.empty();
 		} else {
-			return Optional.of(remoteIdToLocalId.get().getRemoteIdToLocalIdMap().get(remoteResourceId));
+			return Optional.of(serverResourceIdMap.get().getRemoteIdToLocalIdMap().get(remoteResourceId));
 		}
 	}
 
@@ -232,10 +245,10 @@ public class DataRequestServiceImpl implements DataRequestService {
 				log.debug(transactionBundleEntryComponent.getResource().getResourceType() + " with remote id "
 						+ transactionBundleEntryComponent.getResource().getIdElement().getIdPart() + " and local id "
 						+ getIdFromLocation(resultBundleEntryComponent.getResponse().getLocation()) + " created");
-				RemoteIdToLocalId remoteIdToLocalId = remoteIdToLocalIdDAO
+				ServerResourceIdMap remoteIdToLocalId = remoteIdToLocalIdDAO
 						.findByServerIdAndResourceType(remoteServer.getId(),
 								transactionBundleEntryComponent.getResource().getResourceType())
-						.orElse(new RemoteIdToLocalId(remoteServer,
+						.orElse(new ServerResourceIdMap(remoteServer,
 								transactionBundleEntryComponent.getResource().getResourceType()));
 				Map<String, String> remoteToLocalMap = remoteIdToLocalId.getRemoteIdToLocalIdMap();
 				// TODO assuming these are sorted in same order, please confirm

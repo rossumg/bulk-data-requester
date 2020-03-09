@@ -16,10 +16,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJpaRepositories("org.itech")
 @EntityScan("org.itech")
 @ComponentScan("org.itech")
-public class ConsolidatedServerWebApplication {
+public class BulkDataRequesterApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ConsolidatedServerWebApplication.class, args);
+		SpringApplication.run(BulkDataRequesterApplication.class, args);
 	}
 
 }

@@ -10,8 +10,8 @@ import org.itech.datarequester.bulk.model.DataRequestAttempt;
 import org.itech.datarequester.bulk.model.DataRequestTask;
 import org.itech.datarequester.bulk.model.DataRequestAttempt.DataRequestStatus;
 import org.itech.datarequester.bulk.service.DataRequestStatusService;
-import org.itech.datarequester.bulk.service.event.DataRequestEvent;
-import org.itech.datarequester.bulk.service.job.CheckTimeoutJob;
+import org.itech.datarequester.bulk.service.event.DataRequestStatusEvent;
+import org.itech.datarequester.bulk.service.job.DataRequestTimeoutJob;
 import org.itech.datarequester.bulk.service.queue.DataRequestAttemptWaitQueue;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
@@ -51,8 +51,8 @@ public class DataRequestStatusServiceImpl implements DataRequestStatusService {
 	}
 
 	@Transactional
-	@EventListener(DataRequestEvent.class)
-	public void onApplicationEvent(DataRequestEvent event) {
+	@EventListener(DataRequestStatusEvent.class)
+	public void onApplicationEvent(DataRequestStatusEvent event) {
 		log.debug("DataRequestEvent  " + event.getDataRequestStatus() + " for  " + event.getDataRequestAttemptId()
 				+ " detected");
 		DataRequestAttempt dataRequestAttempt;
@@ -117,14 +117,14 @@ public class DataRequestStatusServiceImpl implements DataRequestStatusService {
 	private void publishDataRequestEvent(Long dataRequestAttemptId, DataRequestStatus dataRequestStatus) {
 		log.debug("publishing dataRequest event for dataRequestAttempt " + dataRequestAttemptId + " with status "
 				+ dataRequestStatus);
-		applicationEventPublisher.publishEvent(new DataRequestEvent(this, dataRequestAttemptId, dataRequestStatus));
+		applicationEventPublisher.publishEvent(new DataRequestStatusEvent(this, dataRequestAttemptId, dataRequestStatus));
 	}
 
 	private JobDetail createJobDetail(DataRequestAttempt dataRequestAttempt) {
 		JobDataMap jobDataMap = new JobDataMap();
 		jobDataMap.put("dataRequestAttemptId", dataRequestAttempt.getId());
 
-		return JobBuilder.newJob(CheckTimeoutJob.class)
+		return JobBuilder.newJob(DataRequestTimeoutJob.class)
 				.withIdentity(dataRequestAttempt.getId().toString(), DATA_REQUEST_ATTEMPT_TIMEOUT_JOB_GROUP)
 				.usingJobData(jobDataMap).build();
 	}

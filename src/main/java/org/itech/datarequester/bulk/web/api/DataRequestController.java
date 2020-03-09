@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = Server.SERVER_PATH + "/{serverId}")
-public class SendDataRequestController {
+public class DataRequestController {
 
 	private DataRequestService dataRequestService;
 
-	public SendDataRequestController(DataRequestService dataRequestService) {
+	public DataRequestController(DataRequestService dataRequestService) {
 		this.dataRequestService = dataRequestService;
 	}
 
