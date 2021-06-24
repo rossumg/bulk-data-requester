@@ -73,6 +73,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 	@Async
 	@Transactional
 	public synchronized void runDataRequestTasksForServer(Long serverId) {
+	    log.debug(">>>: runDataRequestTasksForServer");
 		Server server = serverService.getDAO().findById(serverId).get();
 		for (DataRequestTask dataRequestTask : serverDataRequestTaskService.getDAO()
 				.findDataRequestTasksFromServer(server.getId())) {
@@ -93,6 +94,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	private void runDataRequestTask(DataRequestTask dataRequestTask) {
+	    log.debug(">>>: runDataRequestTask");
 		log.debug("running dataRequest task " + dataRequestTask.getId());
 		DataRequestAttempt dataRequestAttempt = new DataRequestAttempt(dataRequestTask);
 		dataRequestAttempt = dataRequestAttemptService.getDAO().save(dataRequestAttempt);
@@ -111,6 +113,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	private void runDataRequestAttempt(DataRequestAttempt dataRequestAttempt) {
+	    log.debug(">>>: runDataRequestAttempt");
 		List<Bundle> searchResults = getResourceBundlesFromRemoteServer(dataRequestAttempt);
 		Bundle transactionBundle = createTransactionBundleFromSearchResults(dataRequestAttempt, searchResults);
 		if (transactionBundle.getTotal() > 0) {
@@ -120,6 +123,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	private List<Bundle> getResourceBundlesFromRemoteServer(DataRequestAttempt dataRequestAttempt) {
+	    log.debug(">>>: getResourceBundlesFromRemoteServer");
 		Map<String, Map<ResourceType, Set<ResourceSearchParam>>> fhirResourcesMap = fhirResources
 				.getAllFhirGroupsToResourceTypesGrouped();
 		log.trace("fhir resource map is: " + fhirResourcesMap);
@@ -135,12 +139,18 @@ public class DataRequestServiceImpl implements DataRequestService {
 		List<Bundle> searchBundles = new ArrayList<>();
 		dataRequestStatusService.changeDataRequestAttemptStatus(dataRequestAttempt.getId(),
 				DataRequestStatus.REQUESTED);
+		
+		log.debug(">>>: " + fhirResourcesMap.toString());
+		log.debug(">>>: " + fhirResourcesMap.get(dataRequestType).entrySet().toString());
+		
 		for (Entry<ResourceType, Set<ResourceSearchParam>> resourceSearchParamsSet : fhirResourcesMap
 				.get(dataRequestType).entrySet()) {
 			Map<String, List<String>> searchParameters = createSearchParams(resourceSearchParamsSet.getKey(),
 					resourceSearchParamsSet.getValue());
+			
 			IGenericClient sourceFhirClient = fhirContext.newRestfulGenericClient(
 					dataRequestAttempt.getDataRequestTask().getRemoteServer().getServerUrl().toString());
+			
 			Bundle searchBundle = sourceFhirClient//
 					.search()//
 					.forResource(resourceSearchParamsSet.getKey().name())//
