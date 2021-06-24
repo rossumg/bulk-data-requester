@@ -117,6 +117,10 @@ public class DataRequestServiceImpl implements DataRequestService {
 		List<Bundle> searchResults = getResourceBundlesFromRemoteServer(dataRequestAttempt);
 		Bundle transactionBundle = createTransactionBundleFromSearchResults(dataRequestAttempt, searchResults);
 		if (transactionBundle.getTotal() > 0) {
+		    //etl here
+		    
+		    
+		    
 			Bundle resultBundle = addBundleToLocalServer(transactionBundle);
 			saveRemoteIdToLocalIdMap(transactionBundle, resultBundle, dataRequestAttempt);
 		}
