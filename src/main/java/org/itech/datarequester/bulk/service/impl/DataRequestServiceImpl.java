@@ -14,7 +14,9 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
 import org.hl7.fhir.r4.model.Bundle.HTTPVerb;
+import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.ResourceType;
+import org.itech.common.log.LogEvent;
 import org.itech.datarequester.bulk.dao.DataRequestTaskDAO;
 import org.itech.datarequester.bulk.model.DataRequestAttempt;
 import org.itech.datarequester.bulk.model.DataRequestAttempt.DataRequestStatus;
@@ -23,12 +25,15 @@ import org.itech.datarequester.bulk.service.DataRequestService;
 import org.itech.datarequester.bulk.service.DataRequestStatusService;
 import org.itech.datarequester.bulk.service.data.model.DataRequestAttemptService;
 import org.itech.datarequester.bulk.service.data.model.DataRequestTaskService;
+import org.itech.etl.service.ETLService;
+import org.itech.etl.valueholder.ETLRecord;
 import org.itech.fhircore.dao.ServerResourceIdMapDAO;
 import org.itech.fhircore.model.ResourceSearchParam;
 import org.itech.fhircore.model.Server;
 import org.itech.fhircore.model.ServerResourceIdMap;
 import org.itech.fhircore.service.FhirResourceGroupService;
 import org.itech.fhircore.service.ServerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -42,6 +47,9 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 public class DataRequestServiceImpl implements DataRequestService {
+    
+    @Autowired
+    private ETLService etlService;
 
 	private ServerService serverService;
 	private DataRequestTaskService serverDataRequestTaskService;
@@ -113,17 +121,48 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	private void runDataRequestAttempt(DataRequestAttempt dataRequestAttempt) {
-	    log.debug(">>>: runDataRequestAttempt");
+	    
 		List<Bundle> searchResults = getResourceBundlesFromRemoteServer(dataRequestAttempt);
 		Bundle transactionBundle = createTransactionBundleFromSearchResults(dataRequestAttempt, searchResults);
+		
+		List<ETLRecord> etlRecordList = new ArrayList<>();
+		List<Observation> observations = new ArrayList<>();
 		if (transactionBundle.getTotal() > 0) {
-		    //etl here
+		    log.debug(">>>: etl here, " + transactionBundle.getTotal());
+		    for (BundleEntryComponent entry : transactionBundle.getEntry()) {
+	            observations.add((Observation) entry.getResource());
+	        }
 		    
-		    
-		    
-			Bundle resultBundle = addBundleToLocalServer(transactionBundle);
-			saveRemoteIdToLocalIdMap(transactionBundle, resultBundle, dataRequestAttempt);
+		    int batchSize = 100;
+		    List<Observation> observationBatch = new ArrayList<>();
+	        for (int i = 0; i < observations.size(); ++i) {
+	            observationBatch.add(observations.get(i));
+	            if (i % batchSize == batchSize - 1 || i + 1 == observations.size()) {
+	                LogEvent.logDebug(this.getClass().getName(), "",
+	                        "persisting batch " + (i - batchSize + 1) + "-" + i + " of " + observations.size());
+	                try {
+	                    etlRecordList = getLatestFhirforETL(observationBatch);
+	                } catch (Exception e) {
+	                    LogEvent.logError(e);
+	                    LogEvent.logError(this.getClass().getName(), "getLatestFhirforETL",
+	                            "error with batch " + (i - batchSize + 1) + "-" + i);
+	                }
+	                for (ETLRecord etlRecord: etlRecordList) {
+	                    etlService.insert(etlRecord);
+	                } 
+	            }
+	        }
 		}
+		    
+//			Bundle resultBundle = addBundleToLocalServer(transactionBundle);
+//			saveRemoteIdToLocalIdMap(transactionBundle, resultBundle, dataRequestAttempt);
+	}
+	
+	public List<ETLRecord> getLatestFhirforETL(List<Observation> observations) {
+	        LogEvent.logDebug(this.getClass().getName(), "getLatestFhirforETL", "getLatestFhirforETL ");
+
+	        List<ETLRecord> etlRecordList = new ArrayList<>();
+	        return etlRecordList;
 	}
 
 	private List<Bundle> getResourceBundlesFromRemoteServer(DataRequestAttempt dataRequestAttempt) {
