@@ -7,8 +7,8 @@ import java.util.Objects;
 import org.hibernate.ObjectNotFoundException;
 import org.itech.datarequester.bulk.dao.DataRequestAttemptDAO;
 import org.itech.datarequester.bulk.model.DataRequestAttempt;
-import org.itech.datarequester.bulk.model.DataRequestTask;
 import org.itech.datarequester.bulk.model.DataRequestAttempt.DataRequestStatus;
+import org.itech.datarequester.bulk.model.DataRequestTask;
 import org.itech.datarequester.bulk.service.DataRequestStatusService;
 import org.itech.datarequester.bulk.service.event.DataRequestStatusEvent;
 import org.itech.datarequester.bulk.service.job.DataRequestTimeoutJob;
@@ -56,12 +56,17 @@ public class DataRequestStatusServiceImpl implements DataRequestStatusService {
 		log.debug("DataRequestEvent  " + event.getDataRequestStatus() + " for  " + event.getDataRequestAttemptId()
 				+ " detected");
 		DataRequestAttempt dataRequestAttempt;
+		log.debug(">>>DataRequestEvent 0 ");
 		if (dataRequestAttemptWaitQueue.contains(event.getDataRequestAttemptId())) {
+		    log.debug(">>>DataRequestEvent 1 ");
 			dataRequestAttempt = dataRequestAttemptWaitQueue.getDataRequestAttempt(event.getDataRequestAttemptId());
+			log.debug(">>>DataRequestEvent 2 ");
 		} else {
+		    log.debug(">>>DataRequestEvent 3 ");
 			dataRequestAttempt = dataRequestAttemptRepository.findById(event.getDataRequestAttemptId())
 					.orElseThrow(() -> new ObjectNotFoundException(event.getDataRequestAttemptId(),
 							DataRequestAttempt.class.getName()));
+			log.debug(">>>DataRequestEvent 4 ");
 		}
 		synchronized (dataRequestAttempt) {
 			switch (event.getDataRequestStatus()) {

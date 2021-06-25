@@ -39,10 +39,10 @@ public class FhirResourceGroupServiceImpl implements FhirResourceGroupService {
 		
 		Set<ResourceSearchParam> resultEntries = new HashSet<>();
 		resultEntries.add(new ResourceSearchParam(ResourceType.Observation));
-		resultEntries.add(new ResourceSearchParam(ResourceType.ServiceRequest));
-		resultEntries.add(new ResourceSearchParam(ResourceType.Patient));
-        resultEntries.add(new ResourceSearchParam(ResourceType.Specimen));
-        resultEntries.add(new ResourceSearchParam(ResourceType.Practitioner));
+//		resultEntries.add(new ResourceSearchParam(ResourceType.ServiceRequest));
+//		resultEntries.add(new ResourceSearchParam(ResourceType.Patient));
+//        resultEntries.add(new ResourceSearchParam(ResourceType.Specimen));
+//        resultEntries.add(new ResourceSearchParam(ResourceType.Practitioner));
         fhirCategoriesToResourceTypes.put(FhirResourceCategories.Results, resultEntries);
 
 //		Set<ResourceSearchParam> entity1Entries = new HashSet<>();
