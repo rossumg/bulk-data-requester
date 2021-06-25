@@ -13,7 +13,7 @@
 *
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.common.log;
+package org.itech.common.log;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

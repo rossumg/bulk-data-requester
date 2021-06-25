@@ -14,7 +14,7 @@
  * Copyright (C) CIRG, University of Washington, Seattle WA.  All Rights Reserved.
  *
  */
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
 import java.sql.Timestamp;
 import java.text.DateFormatSymbols;
@@ -30,11 +30,10 @@ import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import org.apache.commons.validator.GenericValidator;
-import org.openelisglobal.common.exception.LIMSException;
-import org.openelisglobal.common.exception.LIMSRuntimeException;
-import org.openelisglobal.common.log.LogEvent;
-import org.openelisglobal.common.util.ConfigurationProperties.Property;
-import org.openelisglobal.internationalization.MessageUtil;
+import org.itech.common.exception.LIMSException;
+import org.itech.common.exception.LIMSRuntimeException;
+import org.itech.common.log.LogEvent;
+import org.itech.internationalization.MessageUtil;
 
 public class DateUtil {
 
@@ -51,7 +50,8 @@ public class DateUtil {
     private static final long WEEK_MS = DAY_IN_MILLSEC * 7L;
 
     static {
-        AMBIGUOUS_DATE_CHAR = ConfigurationProperties.getInstance().getPropertyValue(Property.AmbiguousDateHolder);
+//        AMBIGUOUS_DATE_CHAR = ConfigurationProperties.getInstance().getPropertyValue(Property.AmbiguousDateHolder);
+        AMBIGUOUS_DATE_CHAR = "a";
         AMBIGUOUS_DATE_REGEX = "(?i)" + AMBIGUOUS_DATE_CHAR + AMBIGUOUS_DATE_CHAR;
         AMBIGUOUS_DATE_SEGMENT = AMBIGUOUS_DATE_CHAR + AMBIGUOUS_DATE_CHAR;
     }
@@ -68,7 +68,8 @@ public class DateUtil {
     }
 
     public static java.sql.Date convertStringDateToSqlDate(String date) {
-        String stringLocale = SystemConfiguration.getInstance().getDefaultLocale().toString();
+//        String stringLocale = SystemConfiguration.getInstance().getDefaultLocale().toString();
+        String stringLocale = "";
 
         return convertStringDateToSqlDate(date, stringLocale);
     }
@@ -157,7 +158,8 @@ public class DateUtil {
 
     public static Timestamp convertStringDateToTimestampWithPattern(String date, String pattern)
             throws LIMSRuntimeException {
-        Locale locale = SystemConfiguration.getInstance().getDefaultLocale();
+//        Locale locale = SystemConfiguration.getInstance().getDefaultLocale();
+        Locale locale = null;
         SimpleDateFormat format = new SimpleDateFormat(pattern, locale);
 
         Timestamp returnTimestamp = null;
@@ -336,7 +338,8 @@ public class DateUtil {
             return date;
         }
 
-        String replaceValue = ConfigurationProperties.getInstance().getPropertyValue(Property.AmbiguousDateValue);
+//        String replaceValue = ConfigurationProperties.getInstance().getPropertyValue(Property.AmbiguousDateValue);
+        String replaceValue = "";
         // N.B. This is suppose to clean-up historical data in the database. We will do
         // the best we can
         if (date.length() != 10) {
@@ -536,13 +539,13 @@ public class DateUtil {
         return new Timestamp(new Date().getTime());
     }
 
-    public static String convertTimestampToStringDateAndConfiguredHourTime(Timestamp timestamp) {
-        if (ConfigurationProperties.getInstance().isPropertyValueEqual(Property.CLOCK_24, "true")) {
-            return convertTimestampToStringDateAndTime(timestamp);
-        } else {
-            return convertTimestampToStringDateAnd12HourTime(timestamp);
-        }
-    }
+//    public static String convertTimestampToStringDateAndConfiguredHourTime(Timestamp timestamp) {
+//        if (ConfigurationProperties.getInstance().isPropertyValueEqual(Property.CLOCK_24, "true")) {
+//            return convertTimestampToStringDateAndTime(timestamp);
+//        } else {
+//            return convertTimestampToStringDateAnd12HourTime(timestamp);
+//        }
+//    }
 
     public static String convertTimestampToStringDateAndTime(Timestamp timestamp) {
         if (timestamp == null) {
@@ -558,13 +561,13 @@ public class DateUtil {
         return new SimpleDateFormat(getDateTime12HourFormat()).format(timestamp);
     }
 
-    public static String convertTimestampToStringConfiguredHourTime(Timestamp timestamp) {
-        if (ConfigurationProperties.getInstance().isPropertyValueEqual(Property.CLOCK_24, "true")) {
-            return convertTimestampToStringHourTime(timestamp);
-        } else {
-            return convertTimestampToString12HourTime(timestamp);
-        }
-    }
+//    public static String convertTimestampToStringConfiguredHourTime(Timestamp timestamp) {
+//        if (ConfigurationProperties.getInstance().isPropertyValueEqual(Property.CLOCK_24, "true")) {
+//            return convertTimestampToStringHourTime(timestamp);
+//        } else {
+//            return convertTimestampToString12HourTime(timestamp);
+//        }
+//    }
 
     public static String convertTimestampToString12HourTime(Timestamp timestamp) {
         if (timestamp == null) {
@@ -657,8 +660,10 @@ public class DateUtil {
     }
 
     public static Locale getDateFormatLocale() {
-        return SystemConfiguration.getInstance().getLocaleByLocalString(
-                ConfigurationProperties.getInstance().getPropertyValue(Property.DEFAULT_DATE_LOCALE));
+        Locale locale = null;
+        return locale;
+//        return SystemConfiguration.getInstance().getLocaleByLocalString(
+//                ConfigurationProperties.getInstance().getPropertyValue(Property.DEFAULT_DATE_LOCALE));
     }
 
     public static String getTimeUserPrompt() {

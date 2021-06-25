@@ -1,12 +1,12 @@
-package org.openelisglobal.statusofsample.service;
+package org.itech.statusofsample.service;
 
 import java.util.List;
 
-import org.openelisglobal.common.exception.LIMSDuplicateRecordException;
-import org.openelisglobal.common.log.LogEvent;
-import org.openelisglobal.common.service.BaseObjectServiceImpl;
-import org.openelisglobal.statusofsample.dao.StatusOfSampleDAO;
-import org.openelisglobal.statusofsample.valueholder.StatusOfSample;
+import org.itech.common.exception.LIMSDuplicateRecordException;
+import org.itech.common.log.LogEvent;
+import org.itech.common.service.BaseObjectServiceImpl;
+import org.itech.statusofsample.dao.StatusOfSampleDAO;
+import org.itech.statusofsample.valueholder.StatusOfSample;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

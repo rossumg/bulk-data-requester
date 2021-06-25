@@ -15,7 +15,7 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.
 */
-package org.openelisglobal.common.valueholder;
+package org.itech.common.valueholder;
 
 import java.sql.Timestamp;
 

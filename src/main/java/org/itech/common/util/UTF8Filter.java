@@ -15,7 +15,7 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.
 */
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

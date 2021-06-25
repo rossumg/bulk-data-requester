@@ -15,12 +15,11 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.
 */
-package org.openelisglobal.common.dao;
+package org.itech.common.dao;
 
-import org.openelisglobal.common.exception.LIMSRuntimeException;
-import org.openelisglobal.common.valueholder.DatabaseChangeLog;
+import org.itech.common.exception.LIMSRuntimeException;
+import org.itech.common.valueholder.DatabaseChangeLog;
 
-//public interface DatabaseChangeLogDAO extends BaseDAO<DatabaseChangeLog, String> {
-public interface DatabaseChangeLogDAO {
+public interface DatabaseChangeLogDAO extends BaseDAO<DatabaseChangeLog, String> {
     public DatabaseChangeLog getLastExecutedChange() throws LIMSRuntimeException;
 }

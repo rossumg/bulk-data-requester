@@ -15,7 +15,7 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.
 */
-package org.openelisglobal.common.action;
+package org.itech.common.action;
 
 /**
  * IActionConstants.java

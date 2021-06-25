@@ -15,13 +15,13 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.
 */
-package org.openelisglobal.common.security;
+package org.itech.common.security;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.validator.GenericValidator;
-import org.openelisglobal.common.action.IActionConstants;
-import org.openelisglobal.common.exception.LIMSRuntimeException;
+import org.itech.common.action.IActionConstants;
+import org.itech.common.exception.LIMSRuntimeException;
 
 public class PageIdentityUtil {
 

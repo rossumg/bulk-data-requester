@@ -14,11 +14,11 @@
 * Copyright (C) CIRG, University of Washington, Seattle WA.  All Rights Reserved.
 *
 */
-package org.openelisglobal.common.paging;
+package org.itech.common.paging;
 
 import java.util.List;
 
-import org.openelisglobal.common.util.IdValuePair;
+import org.itech.common.util.IdValuePair;
 
 public interface IPageDivider<E> {
     public void createPages(E tests, List<E> pagedResults);

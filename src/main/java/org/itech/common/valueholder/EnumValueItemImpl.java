@@ -13,9 +13,9 @@
 *
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.common.valueholder;
+package org.itech.common.valueholder;
 
-import org.openelisglobal.common.action.IActionConstants;
+import org.itech.common.action.IActionConstants;
 
 public abstract class EnumValueItemImpl extends BaseObject<String> implements EnumValueItem {
 

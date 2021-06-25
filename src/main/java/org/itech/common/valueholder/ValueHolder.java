@@ -13,11 +13,11 @@
 *
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.common.valueholder;
+package org.itech.common.valueholder;
 
 import java.io.Serializable;
 
-import org.openelisglobal.common.log.LogEvent;
+import org.itech.common.log.LogEvent;
 
 /**
  * <p>

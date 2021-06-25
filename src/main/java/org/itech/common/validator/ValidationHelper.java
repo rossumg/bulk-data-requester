@@ -1,11 +1,11 @@
-package org.openelisglobal.common.validator;
+package org.itech.common.validator;
 
 import java.util.regex.Pattern;
 
 import org.apache.commons.validator.GenericValidator;
-import org.openelisglobal.common.action.IActionConstants;
-import org.openelisglobal.common.util.validator.CustomDateValidator;
-import org.openelisglobal.common.util.validator.CustomDateValidator.DateRelation;
+import org.itech.common.action.IActionConstants;
+import org.itech.common.util.validator.CustomDateValidator;
+import org.itech.common.util.validator.CustomDateValidator.DateRelation;
 import org.springframework.validation.Errors;
 
 public class ValidationHelper {
@@ -82,8 +82,8 @@ public class ValidationHelper {
 
     public static void validateDateField(String value, String name, String displayName, Errors errors,
             DateRelation relative) {
-        String result = CustomDateValidator.getInstance().validateDate(CustomDateValidator.getInstance().getDate(value),
-                relative);
+//        String result = CustomDateValidator.getInstance().validateDate(CustomDateValidator.getInstance().getDate(value), relative);
+          String result = "";
         if (!IActionConstants.VALID.equals(result)) {
             errors.rejectValue(name, "error.field.date.invalid", new Object[] { displayName, result },
                     DEFAULT_PREFIX + displayName + " is not in a valid date format");

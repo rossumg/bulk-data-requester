@@ -1,4 +1,4 @@
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
 import java.io.Serializable;
 import java.util.Collections;

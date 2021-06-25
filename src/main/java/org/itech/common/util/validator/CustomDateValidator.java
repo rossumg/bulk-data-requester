@@ -13,7 +13,7 @@
 *
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.common.util.validator;
+package org.itech.common.util.validator;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,9 +24,9 @@ import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import org.apache.commons.validator.routines.DateValidator;
-import org.openelisglobal.common.action.IActionConstants;
-import org.openelisglobal.common.log.LogEvent;
-import org.openelisglobal.common.util.SystemConfiguration;
+import org.itech.common.action.IActionConstants;
+import org.itech.common.log.LogEvent;
+//import org.itech.common.util.SystemConfiguration;
 
 public class CustomDateValidator extends DateValidator {
 
@@ -115,10 +115,10 @@ public class CustomDateValidator extends DateValidator {
         return true;
     }
 
-    public Date getDate(String date) {
-        Locale locale = SystemConfiguration.getInstance().getDateLocale();
-        return validate(date, locale);
-    }
+//    public Date getDate(String date) {
+//        Locale locale = SystemConfiguration.getInstance().getDateLocale();
+//        return validate(date, locale);
+//    }
 
     public String validateDate(Date date, DateRelation relative) {
         String result = IActionConstants.VALID;

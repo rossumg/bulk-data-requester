@@ -1,4 +1,4 @@
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
 import org.apache.commons.validator.GenericValidator;
 import org.owasp.encoder.Encode;

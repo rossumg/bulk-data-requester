@@ -14,25 +14,23 @@
 * Copyright (C) CIRG, University of Washington, Seattle WA.  All Rights Reserved.
 *
 */
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.openelisglobal.common.action.IActionConstants;
-import org.openelisglobal.common.log.LogEvent;
-import org.openelisglobal.externalconnections.service.BasicAuthenticationDataService;
-import org.openelisglobal.externalconnections.service.ExternalConnectionService;
-import org.openelisglobal.externalconnections.valueholder.BasicAuthenticationData;
-import org.openelisglobal.externalconnections.valueholder.ExternalConnection;
-import org.openelisglobal.externalconnections.valueholder.ExternalConnection.ProgrammedConnection;
-import org.openelisglobal.siteinformation.service.SiteInformationService;
-import org.openelisglobal.siteinformation.valueholder.SiteInformation;
-import org.openelisglobal.spring.util.SpringContext;
+import org.itech.common.action.IActionConstants;
+import org.itech.common.log.LogEvent;
+//import org.itech.externalconnections.service.BasicAuthenticationDataService;
+//import org.itech.externalconnections.service.ExternalConnectionService;
+//import org.itech.externalconnections.valueholder.BasicAuthenticationData;
+//import org.itech.externalconnections.valueholder.ExternalConnection;
+//import org.itech.externalconnections.valueholder.ExternalConnection.ProgrammedConnection;
+//import org.itech.siteinformation.service.SiteInformationService;
+//import org.itech.siteinformation.valueholder.SiteInformation;
+import org.itech.spring.util.SpringContext;
 
 public class DefaultConfigurationProperties extends ConfigurationProperties {
 
@@ -201,127 +199,127 @@ public class DefaultConfigurationProperties extends ConfigurationProperties {
     @Override
     protected void loadIfPropertyValueNeeded(Property property) {
         if (!databaseLoaded && dbNamePropertiesMap.containsValue(property)) {
-            loadFromDatabase();
+//            loadFromDatabase();
         }
     }
 
-    protected void loadExternalConnectionsFromDatabase() {
-        ExternalConnectionService externalConnectionsService = SpringContext.getBean(ExternalConnectionService.class);
-        BasicAuthenticationDataService basicAuthenticationDataService = SpringContext
-                .getBean(BasicAuthenticationDataService.class);
-
-        Optional<ExternalConnection> infoHighwayConnection = externalConnectionsService.getMatch("programmedConnection",
-                ProgrammedConnection.INFO_HIGHWAY.name());
-        propertiesValueMap.put(Property.INFO_HIGHWAY_ENABLED, Boolean.FALSE.toString());
-        if (infoHighwayConnection.isPresent()) {
-            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
-                    .getByExternalConnection(infoHighwayConnection.get().getId());
-            // basic auth is required for info highway
-            if (basicAuthData.isPresent()) {
-                propertiesValueMap.put(Property.INFO_HIGHWAY_ADDRESS, infoHighwayConnection.get().getUri().toString());
-                propertiesValueMap.put(Property.INFO_HIGHWAY_USERNAME, basicAuthData.get().getUsername());
-                propertiesValueMap.put(Property.INFO_HIGHWAY_PASSWORD, basicAuthData.get().getPassword());
-                if (infoHighwayConnection.get().getActive() != null) {
-                    propertiesValueMap.put(Property.INFO_HIGHWAY_ENABLED,
-                            infoHighwayConnection.get().getActive().toString());
-                }
-            }
-
-        }
-        Optional<ExternalConnection> smtpConnection = externalConnectionsService.getMatch("programmedConnection",
-                ProgrammedConnection.SMTP_SERVER.name());
-        propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_ENABLED, Boolean.FALSE.toString());
-        if (smtpConnection.isPresent()) {
-            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
-                    .getByExternalConnection(smtpConnection.get().getId());
-            propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_ADDRESS, smtpConnection.get().getUri().toString());
-            // basic auth only required if smtp server haas username password
-            if (basicAuthData.isPresent()) {
-                propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_USERNAME, basicAuthData.get().getUsername());
-                propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_PASSWORD, basicAuthData.get().getPassword());
-
-            }
-            if (smtpConnection.get().getActive() != null) {
-                propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_ENABLED,
-                        smtpConnection.get().getActive().toString());
-            }
-        }
-
-        Optional<ExternalConnection> bmpSmsConnection = externalConnectionsService.getMatch("programmedConnection",
-                ProgrammedConnection.BMP_SMS_SERVER.name());
-        propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_ENABLED, Boolean.FALSE.toString());
-        if (bmpSmsConnection.isPresent()) {
-            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
-                    .getByExternalConnection(bmpSmsConnection.get().getId());
-            propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_ADDRESS,
-                    bmpSmsConnection.get().getUri().toString());
-            // basic auth only required if bmp sms server has username password
-            if (basicAuthData.isPresent()) {
-                propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_USERNAME, basicAuthData.get().getUsername());
-                propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_PASSWORD, basicAuthData.get().getPassword());
-
-            }
-            if (bmpSmsConnection.get().getActive() != null) {
-                propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_ENABLED,
-                        bmpSmsConnection.get().getActive().toString());
-            }
-        }
-
-        Optional<ExternalConnection> smppSmsConnection = externalConnectionsService.getMatch("programmedConnection",
-                ProgrammedConnection.SMPP_SERVER.name());
-        propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_ENABLED, Boolean.FALSE.toString());
-        if (smppSmsConnection.isPresent()) {
-            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
-                    .getByExternalConnection(smppSmsConnection.get().getId());
-            propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_ADDRESS,
-                    smppSmsConnection.get().getUri().toString());
-            // basic auth only required if smpp server has username password
-            if (basicAuthData.isPresent()) {
-                propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_USERNAME, basicAuthData.get().getUsername());
-                propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_PASSWORD, basicAuthData.get().getPassword());
-
-            }
-            if (smppSmsConnection.get().getActive() != null) {
-                propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_ENABLED,
-                        smppSmsConnection.get().getActive().toString());
-            }
-        }
-
-//        Optional<ExternalConnection> clinicConnection = externalConnectionsService.getMatch("programmedConnection",
-//                ProgrammedConnection.CLINIC_SEARCH.name());
-//        if (clinicConnection.isPresent()) {
+//    protected void loadExternalConnectionsFromDatabase() {
+//        ExternalConnectionService externalConnectionsService = SpringContext.getBean(ExternalConnectionService.class);
+//        BasicAuthenticationDataService basicAuthenticationDataService = SpringContext
+//                .getBean(BasicAuthenticationDataService.class);
+//
+//        Optional<ExternalConnection> infoHighwayConnection = externalConnectionsService.getMatch("programmedConnection",
+//                ProgrammedConnection.INFO_HIGHWAY.name());
+//        propertiesValueMap.put(Property.INFO_HIGHWAY_ENABLED, Boolean.FALSE.toString());
+//        if (infoHighwayConnection.isPresent()) {
 //            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
-//                    .getByExternalConnection(clinicConnection.get().getId());
+//                    .getByExternalConnection(infoHighwayConnection.get().getId());
+//            // basic auth is required for info highway
 //            if (basicAuthData.isPresent()) {
-//                propertiesValueMap.put(Property.PatientSearchURL, clinicConnection.get().getUri().toString());
-//                propertiesValueMap.put(Property.PatientSearchUserName, basicAuthData.get().getUsername());
-//                propertiesValueMap.put(Property.PatientSearchPassword, basicAuthData.get().getPassword());
-//                if (clinicConnection.get().getActive() != null) {
-//                    propertiesValueMap.put(Property.PatientSearchEnabled,
-//                            clinicConnection.get().getActive().toString());
-//                } else {
-//                    propertiesValueMap.put(Property.PatientSearchEnabled, Boolean.FALSE.toString());
+//                propertiesValueMap.put(Property.INFO_HIGHWAY_ADDRESS, infoHighwayConnection.get().getUri().toString());
+//                propertiesValueMap.put(Property.INFO_HIGHWAY_USERNAME, basicAuthData.get().getUsername());
+//                propertiesValueMap.put(Property.INFO_HIGHWAY_PASSWORD, basicAuthData.get().getPassword());
+//                if (infoHighwayConnection.get().getActive() != null) {
+//                    propertiesValueMap.put(Property.INFO_HIGHWAY_ENABLED,
+//                            infoHighwayConnection.get().getActive().toString());
 //                }
 //            }
+//
 //        }
-
-    }
-
-    protected void loadFromDatabase() {
-        SiteInformationService siteInformationService = SpringContext.getBean(SiteInformationService.class);
-        List<SiteInformation> siteInformationList = siteInformationService.getAllSiteInformation();
-
-        for (SiteInformation siteInformation : siteInformationList) {
-            Property property = dbNamePropertiesMap.get(siteInformation.getName());
-            if (property != null) {
-                propertiesValueMap.put(property, siteInformation.getValue());
-            }
-        }
-
-        loadExternalConnectionsFromDatabase();
-
-        databaseLoaded = true;
-    }
+//        Optional<ExternalConnection> smtpConnection = externalConnectionsService.getMatch("programmedConnection",
+//                ProgrammedConnection.SMTP_SERVER.name());
+//        propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_ENABLED, Boolean.FALSE.toString());
+//        if (smtpConnection.isPresent()) {
+//            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
+//                    .getByExternalConnection(smtpConnection.get().getId());
+//            propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_ADDRESS, smtpConnection.get().getUri().toString());
+//            // basic auth only required if smtp server haas username password
+//            if (basicAuthData.isPresent()) {
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_USERNAME, basicAuthData.get().getUsername());
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_PASSWORD, basicAuthData.get().getPassword());
+//
+//            }
+//            if (smtpConnection.get().getActive() != null) {
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_SMTP_ENABLED,
+//                        smtpConnection.get().getActive().toString());
+//            }
+//        }
+//
+//        Optional<ExternalConnection> bmpSmsConnection = externalConnectionsService.getMatch("programmedConnection",
+//                ProgrammedConnection.BMP_SMS_SERVER.name());
+//        propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_ENABLED, Boolean.FALSE.toString());
+//        if (bmpSmsConnection.isPresent()) {
+//            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
+//                    .getByExternalConnection(bmpSmsConnection.get().getId());
+//            propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_ADDRESS,
+//                    bmpSmsConnection.get().getUri().toString());
+//            // basic auth only required if bmp sms server has username password
+//            if (basicAuthData.isPresent()) {
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_USERNAME, basicAuthData.get().getUsername());
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_PASSWORD, basicAuthData.get().getPassword());
+//
+//            }
+//            if (bmpSmsConnection.get().getActive() != null) {
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_BMP_SMS_ENABLED,
+//                        bmpSmsConnection.get().getActive().toString());
+//            }
+//        }
+//
+//        Optional<ExternalConnection> smppSmsConnection = externalConnectionsService.getMatch("programmedConnection",
+//                ProgrammedConnection.SMPP_SERVER.name());
+//        propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_ENABLED, Boolean.FALSE.toString());
+//        if (smppSmsConnection.isPresent()) {
+//            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
+//                    .getByExternalConnection(smppSmsConnection.get().getId());
+//            propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_ADDRESS,
+//                    smppSmsConnection.get().getUri().toString());
+//            // basic auth only required if smpp server has username password
+//            if (basicAuthData.isPresent()) {
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_USERNAME, basicAuthData.get().getUsername());
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_PASSWORD, basicAuthData.get().getPassword());
+//
+//            }
+//            if (smppSmsConnection.get().getActive() != null) {
+//                propertiesValueMap.put(Property.PATIENT_RESULTS_SMPP_SMS_ENABLED,
+//                        smppSmsConnection.get().getActive().toString());
+//            }
+//        }
+//
+////        Optional<ExternalConnection> clinicConnection = externalConnectionsService.getMatch("programmedConnection",
+////                ProgrammedConnection.CLINIC_SEARCH.name());
+////        if (clinicConnection.isPresent()) {
+////            Optional<BasicAuthenticationData> basicAuthData = basicAuthenticationDataService
+////                    .getByExternalConnection(clinicConnection.get().getId());
+////            if (basicAuthData.isPresent()) {
+////                propertiesValueMap.put(Property.PatientSearchURL, clinicConnection.get().getUri().toString());
+////                propertiesValueMap.put(Property.PatientSearchUserName, basicAuthData.get().getUsername());
+////                propertiesValueMap.put(Property.PatientSearchPassword, basicAuthData.get().getPassword());
+////                if (clinicConnection.get().getActive() != null) {
+////                    propertiesValueMap.put(Property.PatientSearchEnabled,
+////                            clinicConnection.get().getActive().toString());
+////                } else {
+////                    propertiesValueMap.put(Property.PatientSearchEnabled, Boolean.FALSE.toString());
+////                }
+////            }
+////        }
+//
+//    }
+//
+//    protected void loadFromDatabase() {
+//        SiteInformationService siteInformationService = SpringContext.getBean(SiteInformationService.class);
+//        List<SiteInformation> siteInformationList = siteInformationService.getAllSiteInformation();
+//
+//        for (SiteInformation siteInformation : siteInformationList) {
+//            Property property = dbNamePropertiesMap.get(siteInformation.getName());
+//            if (property != null) {
+//                propertiesValueMap.put(property, siteInformation.getValue());
+//            }
+//        }
+//
+//        loadExternalConnectionsFromDatabase();
+//
+//        databaseLoaded = true;
+//    }
 
     private void loadFromPropertiesFile() {
         InputStream propertyStream = null;

@@ -14,35 +14,33 @@
 * Copyright (C) CIRG, University of Washington, Seattle WA.  All Rights Reserved.
 *
 */
-package org.openelisglobal.statusofsample.util;
+package org.itech.statusofsample.util;
 
-import org.openelisglobal.common.action.IActionConstants;
-import org.openelisglobal.common.services.IStatusService;
-import org.openelisglobal.common.services.StatusService.AnalysisStatus;
-import org.openelisglobal.common.services.StatusService.OrderStatus;
-import org.openelisglobal.common.util.ConfigurationProperties;
-import org.openelisglobal.common.util.ConfigurationProperties.Property;
-import org.openelisglobal.result.action.util.ResultsLoadUtility;
-import org.openelisglobal.spring.util.SpringContext;
+import org.itech.common.action.IActionConstants;
+//import org.itech.common.services.IStatusService;
+//import org.itech.common.services.StatusService.AnalysisStatus;
+//import org.itech.common.services.StatusService.OrderStatus;
+import org.itech.common.util.ConfigurationProperties;
+import org.itech.common.util.ConfigurationProperties.Property;
 
 public class StatusRules {
 
-    public boolean hasFailedValidation(String analysisStatusId) {
-        return analysisStatusId.equals(SpringContext.getBean(IStatusService.class).getStatusID(AnalysisStatus.BiologistRejected));
-    }
-
-    public void setAllowableStatusForLoadingResults(ResultsLoadUtility resultsLoadUtility) {
-        resultsLoadUtility.addIncludedAnalysisStatus(AnalysisStatus.BiologistRejected);
-        resultsLoadUtility.addIncludedAnalysisStatus(AnalysisStatus.NotStarted);
-        resultsLoadUtility.addIncludedAnalysisStatus(AnalysisStatus.NonConforming_depricated);
-        resultsLoadUtility.addIncludedSampleStatus(OrderStatus.Entered);
-        resultsLoadUtility.addIncludedSampleStatus(OrderStatus.Started);
-        resultsLoadUtility.addIncludedSampleStatus(OrderStatus.NonConforming_depricated);
-    }
-
-    public String getStartingAnalysisStatus() {
-        return SpringContext.getBean(IStatusService.class).getStatusID(AnalysisStatus.NotStarted);
-    }
+//    public boolean hasFailedValidation(String analysisStatusId) {
+//        return analysisStatusId.equals(SpringContext.getBean(IStatusService.class).getStatusID(AnalysisStatus.BiologistRejected));
+//    }
+//
+//    public void setAllowableStatusForLoadingResults(ResultsLoadUtility resultsLoadUtility) {
+//        resultsLoadUtility.addIncludedAnalysisStatus(AnalysisStatus.BiologistRejected);
+//        resultsLoadUtility.addIncludedAnalysisStatus(AnalysisStatus.NotStarted);
+//        resultsLoadUtility.addIncludedAnalysisStatus(AnalysisStatus.NonConforming_depricated);
+//        resultsLoadUtility.addIncludedSampleStatus(OrderStatus.Entered);
+//        resultsLoadUtility.addIncludedSampleStatus(OrderStatus.Started);
+//        resultsLoadUtility.addIncludedSampleStatus(OrderStatus.NonConforming_depricated);
+//    }
+//
+//    public String getStartingAnalysisStatus() {
+//        return SpringContext.getBean(IStatusService.class).getStatusID(AnalysisStatus.NotStarted);
+//    }
 
     public static boolean useRecordStatusForValidation() {
         String statusRules = ConfigurationProperties.getInstance().getPropertyValueUpperCase(Property.StatusRules);

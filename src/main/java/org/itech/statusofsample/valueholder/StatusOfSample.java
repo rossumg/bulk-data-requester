@@ -15,9 +15,9 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.i
 */
-package org.openelisglobal.statusofsample.valueholder;
+package org.itech.statusofsample.valueholder;
 
-import org.openelisglobal.common.valueholder.EnumValueItemImpl;
+import org.itech.common.valueholder.EnumValueItemImpl;
 
 /**
  *

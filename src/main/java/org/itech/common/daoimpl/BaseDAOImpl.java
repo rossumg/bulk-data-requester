@@ -42,10 +42,8 @@ import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.itech.common.action.IActionConstants;
 import org.itech.common.dao.BaseDAO;
 import org.itech.common.exception.LIMSRuntimeException;
-import org.itech.common.util.SystemConfiguration;
+//import org.itech.common.util.SystemConfiguration;
 import org.itech.common.valueholder.BaseObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,7 +63,8 @@ public abstract class BaseDAOImpl<T extends BaseObject<PK>, PK extends Serializa
         EQ, LIKE, IN
     }
 
-    protected static final int DEFAULT_PAGE_SIZE = SystemConfiguration.getInstance().getDefaultPageSize();
+//    protected static final int DEFAULT_PAGE_SIZE = SystemConfiguration.getInstance().getDefaultPageSize();
+    protected static final int DEFAULT_PAGE_SIZE = 80;
 
     private final Class<T> classType;
 

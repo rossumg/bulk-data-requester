@@ -1,9 +1,9 @@
-package org.openelisglobal.statusofsample.service;
+package org.itech.statusofsample.service;
 
 import java.util.List;
 
-import org.openelisglobal.common.service.BaseObjectService;
-import org.openelisglobal.statusofsample.valueholder.StatusOfSample;
+import org.itech.common.service.BaseObjectService;
+import org.itech.statusofsample.valueholder.StatusOfSample;
 
 public interface StatusOfSampleService extends BaseObjectService<StatusOfSample, String> {
     void getData(StatusOfSample sourceOfSample);

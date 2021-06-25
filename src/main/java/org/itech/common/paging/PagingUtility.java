@@ -14,15 +14,15 @@
  * Copyright (C) CIRG, University of Washington, Seattle WA.  All Rights Reserved.
  *
  */
-package org.openelisglobal.common.paging;
+package org.itech.common.paging;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.openelisglobal.common.action.IActionConstants;
-import org.openelisglobal.common.util.IdValuePair;
+import org.itech.common.action.IActionConstants;
+import org.itech.common.util.IdValuePair;
 
 public class PagingUtility<E> {
     private int totalPages = 0;

@@ -15,7 +15,7 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.
 */
-package org.openelisglobal.common.exception;
+package org.itech.common.exception;
 
 public class LIMSInvalidConfigurationException extends LIMSException {
 

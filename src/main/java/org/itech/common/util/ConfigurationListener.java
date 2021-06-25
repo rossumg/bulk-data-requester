@@ -1,4 +1,4 @@
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
 public interface ConfigurationListener {
 

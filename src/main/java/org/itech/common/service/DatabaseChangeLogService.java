@@ -1,6 +1,6 @@
-package org.openelisglobal.common.service;
+package org.itech.common.service;
 
-import org.openelisglobal.common.valueholder.DatabaseChangeLog;
+import org.itech.common.valueholder.DatabaseChangeLog;
 
 //public interface DatabaseChangeLogService extends BaseObjectService<DatabaseChangeLog, String> {
 

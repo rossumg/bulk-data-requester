@@ -1,4 +1,4 @@
-package org.openelisglobal.internationalization;
+package org.itech.internationalization;
 
 import java.util.Locale;
 import java.util.TimeZone;
@@ -6,9 +6,9 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openelisglobal.common.util.ConfigurationProperties;
-import org.openelisglobal.common.util.ConfigurationProperties.Property;
-import org.openelisglobal.common.util.SystemConfiguration;
+import org.itech.common.util.ConfigurationProperties;
+import org.itech.common.util.ConfigurationProperties.Property;
+//import org.itech.common.util.SystemConfiguration;
 import org.springframework.context.i18n.LocaleContext;
 import org.springframework.context.i18n.TimeZoneAwareLocaleContext;
 import org.springframework.lang.Nullable;
@@ -33,7 +33,7 @@ public class GlobalLocaleResolver extends AbstractLocaleContextResolver {
     public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
         if (!locale.equals(currentLocale)) {
             currentLocale = locale;
-            SystemConfiguration.getInstance().setDefaultLocale(locale.getLanguage());
+//            SystemConfiguration.getInstance().setDefaultLocale(locale.getLanguage());
         }
         currentLocale = locale;
     }

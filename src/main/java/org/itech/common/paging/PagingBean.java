@@ -14,7 +14,7 @@
 * Copyright (C) CIRG, University of Washington, Seattle WA.  All Rights Reserved.
 *
 */
-package org.openelisglobal.common.paging;
+package org.itech.common.paging;
 
 import java.io.Serializable;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
 import javax.validation.constraints.Pattern;
 import javax.validation.groups.Default;
 
-import org.openelisglobal.common.util.IdValuePair;
+import org.itech.common.util.IdValuePair;
 
 public class PagingBean implements Serializable {
 

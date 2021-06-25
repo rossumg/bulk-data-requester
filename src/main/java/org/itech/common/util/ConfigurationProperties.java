@@ -15,13 +15,13 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.
 */
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.validator.GenericValidator;
-import org.openelisglobal.spring.util.SpringContext;
+import org.itech.spring.util.SpringContext;
 
 /*
  * This is an abstract class which represents the configuration properties of the application.  The derived

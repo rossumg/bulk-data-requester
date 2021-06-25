@@ -1,7 +1,7 @@
-package org.openelisglobal.common.service;
+package org.itech.common.service;
 
-import org.openelisglobal.common.dao.DatabaseChangeLogDAO;
-import org.openelisglobal.common.valueholder.DatabaseChangeLog;
+import org.itech.common.dao.DatabaseChangeLogDAO;
+import org.itech.common.valueholder.DatabaseChangeLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

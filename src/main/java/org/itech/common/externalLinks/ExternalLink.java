@@ -1,4 +1,4 @@
-package org.openelisglobal.common.externalLinks;
+package org.itech.common.externalLinks;
 
 public interface ExternalLink {
 

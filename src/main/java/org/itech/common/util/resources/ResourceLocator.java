@@ -13,13 +13,13 @@
 *
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.common.util.resources;
+package org.itech.common.util.resources;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import org.openelisglobal.common.log.LogEvent;
+import org.itech.common.log.LogEvent;
 
 /**
  * Diane Benz Oct 29, 2005

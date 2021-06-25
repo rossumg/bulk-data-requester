@@ -1,11 +1,11 @@
-package org.openelisglobal.internationalization;
+package org.itech.internationalization;
 
 import java.util.Locale;
 
 import org.apache.commons.validator.GenericValidator;
-import org.openelisglobal.common.log.LogEvent;
-import org.openelisglobal.common.util.ConfigurationProperties;
-import org.openelisglobal.common.util.ConfigurationProperties.Property;
+import org.itech.common.log.LogEvent;
+import org.itech.common.util.ConfigurationProperties;
+import org.itech.common.util.ConfigurationProperties.Property;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.context.support.MessageSourceResourceBundle;

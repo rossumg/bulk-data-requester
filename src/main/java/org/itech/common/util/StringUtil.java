@@ -15,7 +15,8 @@
  *
  * Contributor(s): CIRG, University of Washington, Seattle WA.
  */
-package org.openelisglobal.common.util;
+package org.itech
+		.common.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,9 +25,9 @@ import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
 import org.apache.commons.validator.GenericValidator;
-import org.openelisglobal.common.exception.LIMSException;
-import org.openelisglobal.common.exception.LIMSRuntimeException;
-import org.openelisglobal.common.log.LogEvent;
+import org.itech.common.exception.LIMSException;
+import org.itech.common.exception.LIMSRuntimeException;
+import org.itech.common.log.LogEvent;
 import org.owasp.encoder.Encode;
 
 /**

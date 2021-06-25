@@ -1,11 +1,11 @@
-package org.openelisglobal.common;
+package org.itech.common;
 
-import org.apache.commons.validator.GenericValidator;
+import org.itech.common.log.LogEvent;
+import org.itech.common.util.validator.GenericValidator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.openelisglobal.common.log.LogEvent;
 
 public class JSONUtils {
 

@@ -13,13 +13,13 @@
 *
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.statusofsample.dao;
+package org.itech.statusofsample.dao;
 
 import java.util.List;
 
-import org.openelisglobal.common.dao.BaseDAO;
-import org.openelisglobal.common.exception.LIMSRuntimeException;
-import org.openelisglobal.statusofsample.valueholder.StatusOfSample;
+import org.itech.common.dao.BaseDAO;
+import org.itech.common.exception.LIMSRuntimeException;
+import org.itech.statusofsample.valueholder.StatusOfSample;
 
 /**
  * @author bill mcgough

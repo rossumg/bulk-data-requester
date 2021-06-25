@@ -15,16 +15,11 @@
 *
 * Contributor(s): CIRG, University of Washington, Seattle WA.
 */
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
-import org.openelisglobal.common.log.LogEvent;
-import org.openelisglobal.common.service.DatabaseChangeLogService;
-import org.openelisglobal.common.valueholder.DatabaseChangeLog;
-import org.openelisglobal.spring.util.SpringContext;
+import org.itech.common.service.DatabaseChangeLogService;
+import org.itech.common.valueholder.DatabaseChangeLog;
+import org.itech.spring.util.SpringContext;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -34,27 +29,27 @@ public class Versioning {
     private String releaseNumber = " ";
 
     public Versioning() {
-        InputStream propertyStream = null;
-        Properties properties = null;
-
-        try {
-            propertyStream = this.getClass().getClassLoader().getResourceAsStream(PROPERTY_FILE);
-            properties = new Properties();
-            properties.load(propertyStream);
-        } catch (IOException e) {
-            LogEvent.logError(e.toString(), e);
-        } finally {
-            if (null != propertyStream) {
-                try {
-                    propertyStream.close();
-                } catch (IOException e) {
-                    LogEvent.logError(e.toString(), e);
-                }
-            }
-        }
-        if (properties != null) {
-            releaseNumber = properties.getProperty("project.version", " ");
-        }
+//        InputStream propertyStream = null;
+//        Properties properties = null;
+//
+//        try {
+//            propertyStream = this.getClass().getClassLoader().getResourceAsStream(PROPERTY_FILE);
+//            properties = new Properties();
+//            properties.load(propertyStream);
+//        } catch (IOException e) {
+//            LogEvent.logError(e.toString(), e);
+//        } finally {
+//            if (null != propertyStream) {
+//                try {
+//                    propertyStream.close();
+//                } catch (IOException e) {
+//                    LogEvent.logError(e.toString(), e);
+//                }
+//            }
+//        }
+//        if (properties != null) {
+//            releaseNumber = properties.getProperty("project.version", " ");
+//        }
     }
 
     public String getDatabaseVersion() {

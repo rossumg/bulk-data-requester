@@ -1,4 +1,4 @@
-package org.openelisglobal.common.propertyeditor;
+package org.itech.common.propertyeditor;
 
 import java.beans.PropertyEditorSupport;
 

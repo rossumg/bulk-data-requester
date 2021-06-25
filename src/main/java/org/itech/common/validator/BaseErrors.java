@@ -1,4 +1,4 @@
-package org.openelisglobal.common.validator;
+package org.itech.common.validator;
 
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;

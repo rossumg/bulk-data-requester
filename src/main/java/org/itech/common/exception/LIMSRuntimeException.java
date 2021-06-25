@@ -13,12 +13,12 @@
 *
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.common.exception;
+package org.itech.common.exception;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import org.openelisglobal.common.log.LogEvent;
+import org.itech.common.log.LogEvent;
 
 /**
  *

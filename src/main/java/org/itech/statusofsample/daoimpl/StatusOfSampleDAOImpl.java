@@ -13,7 +13,7 @@
 *
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.statusofsample.daoimpl;
+package org.itech.statusofsample.daoimpl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -21,13 +21,13 @@ import java.util.List;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.openelisglobal.common.daoimpl.BaseDAOImpl;
-import org.openelisglobal.common.exception.LIMSRuntimeException;
-import org.openelisglobal.common.log.LogEvent;
-import org.openelisglobal.common.util.StringUtil;
-import org.openelisglobal.common.util.SystemConfiguration;
-import org.openelisglobal.statusofsample.dao.StatusOfSampleDAO;
-import org.openelisglobal.statusofsample.valueholder.StatusOfSample;
+import org.itech.common.daoimpl.BaseDAOImpl;
+import org.itech.common.exception.LIMSRuntimeException;
+import org.itech.common.log.LogEvent;
+import org.itech.common.util.StringUtil;
+//import org.itech.common.util.SystemConfiguration;
+import org.itech.statusofsample.dao.StatusOfSampleDAO;
+import org.itech.statusofsample.valueholder.StatusOfSample;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -239,7 +239,8 @@ public class StatusOfSampleDAOImpl extends BaseDAOImpl<StatusOfSample, String> i
         List<StatusOfSample> list;
         try {
             // calculate maxRow to be one more than the page size
-            int endingRecNo = startingRecNo + (SystemConfiguration.getInstance().getDefaultPageSize() + 1);
+//            int endingRecNo = startingRecNo + (SystemConfiguration.getInstance().getDefaultPageSize() + 1);
+            int endingRecNo = startingRecNo + 80 + 1;
 
             // bugzilla 1399
             String sql = "from StatusOfSample s order by s.statusType, s.code";

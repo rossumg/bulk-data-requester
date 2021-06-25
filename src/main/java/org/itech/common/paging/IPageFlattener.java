@@ -14,7 +14,7 @@
 * Copyright (C) CIRG, University of Washington, Seattle WA.  All Rights Reserved.
 *
 */
-package org.openelisglobal.common.paging;
+package org.itech.common.paging;
 
 import java.util.List;
 

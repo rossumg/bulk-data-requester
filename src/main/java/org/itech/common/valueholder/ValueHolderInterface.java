@@ -13,7 +13,7 @@
 * 
 * Copyright (C) The Minnesota Department of Health.  All Rights Reserved.
 */
-package org.openelisglobal.common.valueholder;
+package org.itech.common.valueholder;
 
 public interface ValueHolderInterface {
 

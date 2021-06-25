@@ -14,7 +14,7 @@
  * Copyright (C) ITECH, University of Washington, Seattle WA.  All Rights Reserved.
  */
 
-package org.openelisglobal.common.util;
+package org.itech.common.util;
 
 /**
  */
