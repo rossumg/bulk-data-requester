@@ -47,12 +47,9 @@ public class DataRequestCheckerServiceImpl implements DataRequestCheckerService 
 		Instant now = Instant.now();
 
 		Iterable<Server> servers = serverService.getDAO().findAll();
-		log.debug(">>>: servers " + servers.toString());
 		for (Server server : servers) {
-		    log.debug(">>>: for servers");
 			for (DataRequestTask dataRequestTask : serverDataRequestTaskService.getDAO()
 					.findDataRequestTasksFromServer(server.getId())) {
-			    log.debug(">>>: for tasks");
 				Instant nextDataRequestTime;
 				List<DataRequestAttempt> latestDataRequestAttempts = dataRequestAttemptRepository
 						.findLatestDataRequestAttemptsByDataRequestTask(PageRequest.of(0, 1), dataRequestTask.getId());

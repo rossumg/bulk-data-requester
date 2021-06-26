@@ -21,7 +21,6 @@ public class ServerServiceImpl extends CrudServiceImpl<Server, Long> implements 
 	public ServerServiceImpl(ServerDAO serverRepository) {
 		super(serverRepository);
 		log.info(this.getClass().getName() + " has started");
-		log.info(">>>: " + this.getClass().getName() + " has started");
 		this.serverRepository = serverRepository;
 	}
 

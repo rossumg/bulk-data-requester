@@ -31,7 +31,6 @@ public class FhirResourceGroupServiceImpl implements FhirResourceGroupService {
 
 	public FhirResourceGroupServiceImpl(CustomFhirResourceGroupDAO customFhirResourceGroupDAO,
 			ResourceSearchParamDAO resourceSearchParamsDAO) {
-	    log.debug(">>>: FhirResourceGroupServiceImpl");
 		this.customFhirResourceGroupDAO = customFhirResourceGroupDAO;
 		this.resourceSearchParamsDAO = resourceSearchParamsDAO;
 
@@ -105,7 +104,6 @@ public class FhirResourceGroupServiceImpl implements FhirResourceGroupService {
 	@Override
 	public Map<String, Set<ResourceSearchParam>> getAllFhirGroupsToResourceTypes() {
 		Map<String, Set<ResourceSearchParam>> allFhirGroupsToResourceTypes = new HashMap<>();
-		log.debug(">>>: getAllFhirGroupsToResourceTypes");
 		allFhirGroupsToResourceTypes.putAll(getDefaultFhirGroupsToResourceTypes());
 		allFhirGroupsToResourceTypes.putAll(getCustomFhirGroupsToResourceTypes());
 		return allFhirGroupsToResourceTypes;

@@ -101,7 +101,6 @@ public class DataRequestServiceImpl implements DataRequestService {
 	@Async
 	@Transactional
 	public synchronized void runDataRequestTasksForServer(Long serverId) {
-	    log.debug(">>>: runDataRequestTasksForServer");
 		Server server = serverService.getDAO().findById(serverId).get();
 		for (DataRequestTask dataRequestTask : serverDataRequestTaskService.getDAO()
 				.findDataRequestTasksFromServer(server.getId())) {
@@ -122,7 +121,6 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	private void runDataRequestTask(DataRequestTask dataRequestTask) {
-	    log.debug(">>>: runDataRequestTask");
 		log.debug("running dataRequest task " + dataRequestTask.getId());
 		DataRequestAttempt dataRequestAttempt = new DataRequestAttempt(dataRequestTask);
 		dataRequestAttempt = dataRequestAttemptService.getDAO().save(dataRequestAttempt);
@@ -534,7 +532,6 @@ public class DataRequestServiceImpl implements DataRequestService {
 	}
 
 	private List<Bundle> getResourceBundlesFromRemoteServer(DataRequestAttempt dataRequestAttempt) {
-	    log.debug(">>>: getResourceBundlesFromRemoteServer");
 		Map<String, Map<ResourceType, Set<ResourceSearchParam>>> fhirResourcesMap = fhirResources
 				.getAllFhirGroupsToResourceTypesGrouped();
 		log.trace("fhir resource map is: " + fhirResourcesMap);
@@ -551,9 +548,6 @@ public class DataRequestServiceImpl implements DataRequestService {
 		log.debug("dataRequestAttempt ID = " + dataRequestAttempt.getId());
 		dataRequestStatusService.changeDataRequestAttemptStatus(dataRequestAttempt.getId(),
 				DataRequestStatus.REQUESTED);
-		
-		log.debug(">>>: " + fhirResourcesMap.toString());
-		log.debug(">>>: " + fhirResourcesMap.get(dataRequestType).entrySet().toString());
 		
 		for (Entry<ResourceType, Set<ResourceSearchParam>> resourceSearchParamsSet : fhirResourcesMap
 				.get(dataRequestType).entrySet()) {
