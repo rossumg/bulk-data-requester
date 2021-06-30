@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.FhirVersionEnum;
@@ -13,19 +12,18 @@ import ca.uhn.fhir.rest.client.apache.ApacheRestfulClientFactory;
 import ca.uhn.fhir.rest.client.api.IRestfulClientFactory;
 
 @Configuration
-@PropertySource("file:/run/secrets/common.properties")
 public class FhirConfig {
 
-    @Value("${org.openelisglobal.oe.fhir.system:http://openelis-global.org}")
-    private String oeFhirSystem;
-    @Value("${org.openelisglobal.fhirstore.uri}")
+//    @Value("${org.openelisglobal.oe.fhir.system:http://openelis-global.org}")
+//    private String oeFhirSystem;
+    @Value("${org.itech.datarequester.bulk.fhirstore.uri}")
     private String localFhirStorePath;
-    @Value("${org.openelisglobal.remote.source.uri}")
-    private String[] remoteStorePaths;
-    @Value("${org.openelisglobal.fhirstore.username:}")
-    private String username;
-    @Value("${org.openelisglobal.fhirstore.password:}")
-    private String password;
+//    @Value("${org.openelisglobal.remote.source.uri}")
+//    private String[] remoteStorePaths;
+//    @Value("${org.openelisglobal.fhirstore.username:}")
+//    private String username;
+//    @Value("${org.openelisglobal.fhirstore.password:}")
+//    private String password;
 
     @Autowired
     CloseableHttpClient httpClient;
@@ -49,15 +47,15 @@ public class FhirConfig {
 
     }
 
-    public String getOeFhirSystem() {
-        return oeFhirSystem;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-    
-    public String getPassword() {
-        return password;
-    }
+//    public String getOeFhirSystem() {
+//        return oeFhirSystem;
+//    }
+//
+//    public String getUsername() {
+//        return username;
+//    }
+//    
+//    public String getPassword() {
+//        return password;
+//    }
 }

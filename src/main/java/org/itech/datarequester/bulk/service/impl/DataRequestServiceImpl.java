@@ -345,12 +345,12 @@ public class DataRequestServiceImpl implements DataRequestService {
 	                    }
 
 	                    org.json.simple.JSONArray address = JSONUtils.getAsArray(patientJson.get("address"));
-	                    for (j = 0; j < name.size(); ++j) {
+	                    for (j = 0; j < address.size(); ++j) {
 	                        JSONObject jAddress = JSONUtils.getAsObject(address.get(j));
 	                        org.json.simple.JSONArray jLines = JSONUtils.getAsArray(jAddress.get("line"));
 	                        etlRecord.setAddress_street(jLines.get(0).toString());
 	                        etlRecord.setAddress_city(jAddress.get("city").toString());
-	                        etlRecord.setAddress_country(jAddress.get("country").toString());
+//	                        etlRecord.setAddress_country(jAddress.get("country").toString());
 	                    }
 
 	                    org.json.simple.JSONArray telecom = JSONUtils.getAsArray(patientJson.get("telecom"));
