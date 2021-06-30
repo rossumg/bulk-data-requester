@@ -7,11 +7,11 @@ import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.validator.constraints.NotBlank;
 import org.itech.fhircore.model.Server;
 import org.itech.fhircore.model.base.AuditableEntity;
 
@@ -21,7 +21,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity
-public class DataRequestTask extends AuditableEntity<Long> {
+public class DataRequestTask extends AuditableEntity<Long> {  
 
 	public static final TemporalUnit INTERVAL_UNITS = ChronoUnit.MINUTES;
 	public static final TemporalUnit TIMEOUT_UNITS = ChronoUnit.SECONDS;
