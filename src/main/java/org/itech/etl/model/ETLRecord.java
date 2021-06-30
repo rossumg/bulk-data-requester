@@ -47,17 +47,17 @@ public class ETLRecord extends AuditableEntity<Long> {
     public ETLRecord() {
     }
 
-    public ETLRecord(String externalId, String patientId) {
-        this.externalId = externalId;
-        this.patientId = patientId;
-    }
-    
-    public String getExternalId() {
-        return externalId;
-    }
-    public String patientId() {
-        return externalId;
-    }
+//    public ETLRecord(String externalId, String patientId) {
+//        this.externalId = externalId;
+//        this.patientId = patientId;
+//    }
+//    
+//    public String getExternalId() {
+//        return externalId;
+//    }
+//    public String patientId() {
+//        return externalId;
+//    }
     
 //    public ETL(String name, String serverAddress) {
 //        this.name = name;

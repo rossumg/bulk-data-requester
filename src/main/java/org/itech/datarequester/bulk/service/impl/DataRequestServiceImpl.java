@@ -1,6 +1,7 @@
 package org.itech.datarequester.bulk.service.impl;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
@@ -345,26 +346,28 @@ public class DataRequestServiceImpl implements DataRequestService {
 	                    }
 
 	                    org.json.simple.JSONArray address = JSONUtils.getAsArray(patientJson.get("address"));
-	                    for (j = 0; j < address.size(); ++j) {
-	                        JSONObject jAddress = JSONUtils.getAsObject(address.get(j));
-	                        org.json.simple.JSONArray jLines = JSONUtils.getAsArray(jAddress.get("line"));
-	                        etlRecord.setAddress_street(jLines.get(0).toString());
-	                        etlRecord.setAddress_city(jAddress.get("city").toString());
-//	                        etlRecord.setAddress_country(jAddress.get("country").toString());
+	                    if (address != null) {
+	                        for (j = 0; j < address.size(); ++j) {
+	                            JSONObject jAddress = JSONUtils.getAsObject(address.get(j));
+	                            org.json.simple.JSONArray jLines = JSONUtils.getAsArray(jAddress.get("line"));
+	                            if (jLines.get(0) != null)
+	                                etlRecord.setAddress_street(jLines.get(0).toString());
+	                            if (jAddress.get("city") != null)
+	                                etlRecord.setAddress_city(jAddress.get("city").toString());
+	                            if (jAddress.get("country") != null)
+	                                etlRecord.setAddress_country(jAddress.get("country").toString());
+	                        }
 	                    }
 
 	                    org.json.simple.JSONArray telecom = JSONUtils.getAsArray(patientJson.get("telecom"));
 	                    for (j = 0; j < telecom.size(); ++j) {
-	                        // log.debug( "glfe: " + telecom.get(j).toString());
 	                        JSONObject jTelecom = JSONUtils.getAsObject(telecom.get(j));
 
-	                        if (jTelecom.get("system").toString().equalsIgnoreCase("other")) {
-	                            // log.debug( "glfe: " + jTelecom.get("system").toString());
-	                            // log.debug( "glfe: " + jTelecom.get("value").toString());
+	                        if (jTelecom.get("system").toString().equalsIgnoreCase("other")
+	                                && jTelecom.get("value") != null) {
 	                            etlRecord.setHome_phone(jTelecom.get("value").toString());
-	                        } else if (jTelecom.get("system").toString().equalsIgnoreCase("sms")) {
-	                            // log.debug( "glfe: " + jTelecom.get("system").toString());
-	                            // log.debug( "glfe: " + jTelecom.get("value").toString());
+	                        } else if (jTelecom.get("system").toString().equalsIgnoreCase("sms")
+	                            && jTelecom.get("value") != null) {
 	                            etlRecord.setWork_phone(jTelecom.get("value").toString());
 	                        }
 	                    }
@@ -480,51 +483,52 @@ public class DataRequestServiceImpl implements DataRequestService {
 	                        // log.debug( "glfe: " + jCoding.get("display").toString());
 	                    }
 	                    //                  2021-04-29T16:58:51-07:00
-	                    try {
+	                    
+	                    if (specimenJson.get("receivedTime") != null) {
 	                        String timestampToDate = specimenJson.get("receivedTime").toString().substring(0,10);
 	                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-	                        Date parsedDate = dateFormat.parse(timestampToDate);
+	                        Date parsedDate = null;
+                            try {
+                                parsedDate = dateFormat.parse(timestampToDate);
+                            } catch (ParseException e) {
+                                // TODO Auto-generated catch block
+                            }
 	                        Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
 	                        etlRecord.setDate_recpt(timestamp);
-	                    } catch(Exception e) { 
-	                        e.printStackTrace();
-	                    }
+	                    } 
 	                    
+	                   
 	                    JSONObject jCollection = JSONUtils.getAsObject(specimenJson.get("collection"));
-//	                    JSONObject jCollectedDateTime = JSONUtils.getAsObject(jCollection.get("collectedDateTime"));
-	                    // log.debug( "glfe: " + jCollection.get("collectedDateTime").toString());
-	                    try {
-	                        String timestampToDate = jCollection.get("collectedDateTime").toString().substring(0,10);
-	                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-	                        Date parsedDate = dateFormat.parse(timestampToDate);
-	                        Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
-	                        etlRecord.setDate_collect(timestamp);
-	                    } catch(Exception e) { 
-	                        e.printStackTrace();
+	                    if (jCollection != null ) {
+	                        JSONObject jCollectedDateTime = JSONUtils.getAsObject(jCollection.get("collectedDateTime"));
+	                        try {
+	                            String timestampToDate = jCollection.get("collectedDateTime").toString().substring(0,10);
+	                            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	                            Date parsedDate = dateFormat.parse(timestampToDate);
+	                            Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
+	                            etlRecord.setDate_collect(timestamp);
+	                        } catch(Exception e) { 
+	                            e.printStackTrace();
+	                        }
 	                    }
 	                }
 
-	                String practitionerStr = fhirContext.newJsonParser().encodeResourceToString(fhirPractitioner);
-	                // log.debug( "glfe:practitionerStr: " + practitionerStr);
-	                JSONObject practitionerJson = null;
-	                practitionerJson = JSONUtils.getAsObject(practitionerStr);
-	                // log.debug( "glfe: " + practitionerJson.toString());
-	                if (!JSONUtils.isEmpty(practitionerJson)) {
-	                    org.json.simple.JSONArray name = JSONUtils.getAsArray(practitionerJson.get("name"));
-	                    for (j = 0; j < name.size(); ++j) {
-	                        // log.debug( "glfe: " + name.get(j).toString());
-	                        JSONObject jName = JSONUtils.getAsObject(name.get(j));
-	                        // log.debug( "glfe: " + jName.get("family").toString());
-	                        // log.debug( "glfe: " + jName.get("given").toString());
-	                        org.json.simple.JSONArray givenName = JSONUtils.getAsArray(jName.get("given"));
-	                        etlRecord.setReferer(givenName.get(0).toString() + " " + 
-	                                jName.get("family").toString());
+	                    String practitionerStr = fhirContext.newJsonParser().encodeResourceToString(fhirPractitioner);
+	                    JSONObject practitionerJson = null;
+	                    practitionerJson = JSONUtils.getAsObject(practitionerStr);
+	                    if (!JSONUtils.isEmpty(practitionerJson)) {
+	                        org.json.simple.JSONArray name = JSONUtils.getAsArray(practitionerJson.get("name"));
+	                        for (j = 0; j < name.size(); ++j) {
+	                            JSONObject jName = JSONUtils.getAsObject(name.get(j));
+	                            org.json.simple.JSONArray givenName = JSONUtils.getAsArray(jName.get("given"));
+	                            etlRecord.setReferer(givenName.get(0).toString() + " " + 
+	                                    jName.get("family").toString());
+	                        }
 	                    }
-	                }
 	            } catch (org.json.simple.parser.ParseException e) {
 	                e.printStackTrace();
 	            }
-	            
+
 	            etlRecordList.add(etlRecord);
 	        }
 	        
