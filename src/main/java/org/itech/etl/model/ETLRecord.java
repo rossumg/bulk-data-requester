@@ -2,6 +2,7 @@ package org.itech.etl.model;
 
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import org.itech.fhircore.model.base.AuditableEntity;
@@ -18,6 +19,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String patientId;
     private String statusId;
     private Timestamp orderTimestamp;
+	@Column(length = 65535)
     private String data;
     private String labno;
     private String identifier;
@@ -42,7 +44,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String order_status;
     private String test;
     private String result;
-   
+
 
     public ETLRecord() {
     }
@@ -51,14 +53,14 @@ public class ETLRecord extends AuditableEntity<Long> {
 //        this.externalId = externalId;
 //        this.patientId = patientId;
 //    }
-//    
+//
 //    public String getExternalId() {
 //        return externalId;
 //    }
 //    public String patientId() {
 //        return externalId;
 //    }
-    
+
 //    public ETL(String name, String serverAddress) {
 //        this.name = name;
 //        this.serverUrl = URIUtil.createHttpUrlFromString(serverAddress);
