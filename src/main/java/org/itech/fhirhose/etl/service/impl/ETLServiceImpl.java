@@ -1,20 +1,33 @@
 package org.itech.fhirhose.etl.service.impl;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
+import org.hl7.fhir.r4.model.CodeableConcept;
+import org.hl7.fhir.r4.model.ContactPoint;
+import org.hl7.fhir.r4.model.ContactPoint.ContactPointUse;
+import org.hl7.fhir.r4.model.DateTimeType;
+import org.hl7.fhir.r4.model.HumanName;
+import org.hl7.fhir.r4.model.Identifier;
+import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
+import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Specimen;
+import org.hl7.fhir.r4.model.StringType;
+import org.hl7.fhir.r4.model.Type;
 import org.itech.fhirhose.etl.model.ETLRecord;
 import org.itech.fhirhose.etl.service.ETLRecordService;
 import org.itech.fhirhose.etl.service.ETLService;
@@ -41,7 +54,7 @@ public class ETLServiceImpl implements ETLService {
 
 	@Override
 	public void createPersistETLRecords(List<Bundle> searchBundles) {
-		log.debug("createETLRecord: ");
+		log.debug("createPersistETLRecords: ");
 		List<ETLRecord> etlRecordList = new ArrayList<>();
 
 		List<Observation> observations = new ArrayList<>();
@@ -50,20 +63,222 @@ public class ETLServiceImpl implements ETLService {
 				observations.add((Observation) entry.getResource());
 			}
 		}
-		log.debug("createETLRecord:observations:size: " + observations.size());
-		etlRecordList = getLatestFhirforETL(observations);
-		log.debug("createETLRecord:etlRecordList:size: " + etlRecordList.size());
+		log.debug("observations:size: " + observations.size());
+		etlRecordList = convertToEtlRecords(observations);
+		log.debug("etlRecordList:size: " + etlRecordList.size());
 
 		// add records to data mart
 		if (etlRecordService.saveAll(etlRecordList)) {
-			log.debug("createETLRecord:saveAll:success ");
+			log.debug("saveAll:success ");
 		} else {
-			log.debug("createETLRecord:saveAll:fail ");
+			log.debug("saveAll:fail ");
 		}
 
 	}
 
-	@Override
+	private List<ETLRecord> convertToEtlRecords(List<Observation> observations) {
+		log.debug("convertToEtlRecords:observations:size: " + observations.size());
+
+		List<ETLRecord> etlRecordList = new ArrayList<>();
+		IGenericClient localFhirClient = fhirUtil.getLocalFhirClient();
+
+		// csl
+		int i = -1;
+		for (Observation observation : observations) {
+			log.trace("convertToEtlRecords:observation " + ++i);
+			Observation fhirObservation = observation;
+			Patient fhirPatient = new Patient();
+			ServiceRequest fhirServiceRequest = new ServiceRequest();
+			Practitioner fhirPractitioner = new Practitioner();
+			Specimen fhirSpecimen = new Specimen();
+
+			log.debug("observation: " + fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
+			log.trace("observation based on id: " + fhirObservation.getBasedOnFirstRep().getReference());
+			// get ServiceRequest
+			if (fhirObservation.getBasedOnFirstRep().hasReference()) {
+				String srString = fhirObservation.getBasedOnFirstRep().getReference();
+				log.trace("reading " + srString);
+				fhirServiceRequest = localFhirClient.read()//
+						.resource(ServiceRequest.class)//
+						.withId(srString)//
+						.execute();
+				log.debug("fhirServiceRequest: " + fhirUtil.getFhirParser().encodeResourceToString(fhirServiceRequest));
+			}
+
+			// get Practitioner
+			if (fhirServiceRequest.getRequester().hasReference()) {
+				String pracString = fhirServiceRequest.getRequester().getReference();
+				log.trace("reading " + pracString);
+				fhirPractitioner = localFhirClient.read()//
+						.resource(Practitioner.class)//
+						.withId(pracString)//
+						.execute();
+			}
+
+			// get Patient
+			if (fhirObservation.getSubject().hasReference()) {
+				String patString = fhirObservation.getSubject().getReference();
+				log.trace("reading " + patString);
+				fhirPatient = localFhirClient.read()//
+						.resource(Patient.class)//
+						.withId(patString)//
+						.execute();
+			}
+
+			// get Specimen
+			if (fhirObservation.getSpecimen().hasReference()) {
+				String spString = fhirObservation.getSpecimen().getReference();
+				log.trace("reading " + spString);
+				fhirSpecimen = localFhirClient.read()//
+						.resource(Specimen.class)//
+						.withId(spString)//
+						.execute();
+			}
+
+			ETLRecord etlRecord = convertoToETLRecord(fhirObservation, fhirPatient, fhirServiceRequest,
+					fhirPractitioner, fhirSpecimen);
+
+			etlRecordList.add(etlRecord);
+		}
+
+		return etlRecordList;
+	}
+
+	private ETLRecord convertoToETLRecord(Observation fhirObservation, Patient fhirPatient,
+			ServiceRequest fhirServiceRequest, Practitioner fhirPractitioner, Specimen fhirSpecimen) {
+		log.trace("convertoToETLRecord");
+		ETLRecord etlRecord = new ETLRecord();
+		etlRecord.setData(fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
+		putObservationValuesIntoETLRecord(etlRecord, fhirObservation);
+		putPatientValuesIntoETLRecord(etlRecord, fhirPatient);
+		putServiceRequestValuesIntoETLRecord(etlRecord, fhirServiceRequest);
+		putSpecimenValuesIntoETLRecord(etlRecord, fhirSpecimen);
+		putPractitionerValuesIntoETLRecord(etlRecord, fhirPractitioner);
+		return etlRecord;
+	}
+
+	private void putPractitionerValuesIntoETLRecord(ETLRecord etlRecord, Practitioner fhirPractitioner) {
+		log.trace("putPractitionerValuesIntoETLRecord");
+		if (fhirPractitioner.hasName()) {
+			etlRecord.setReferer(fhirPractitioner.getNameFirstRep().getGivenAsSingleString() + " "
+					+ fhirPractitioner.getNameFirstRep().getFamily());
+		}
+	}
+
+	private void putSpecimenValuesIntoETLRecord(ETLRecord etlRecord, Specimen fhirSpecimen) {
+		log.trace("putSpecimenValuesIntoETLRecord");
+		if (fhirSpecimen.hasReceivedTime()) {
+			etlRecord.setDate_recpt(new Timestamp(fhirSpecimen.getReceivedTime().getTime()));
+		}
+		if (fhirSpecimen.hasCollection()) {
+			DateTimeType collectionTime = fhirSpecimen.getCollection().getCollectedDateTimeType();
+			etlRecord.setDate_collect(new Timestamp(collectionTime.getValue().getTime()));
+		}
+	}
+
+	private void putObservationValuesIntoETLRecord(ETLRecord etlRecord, Observation fhirObservation) {
+		log.trace("putObservationValuesIntoETLRecord");
+		if (fhirObservation.hasValue()) {
+			Type value = fhirObservation.getValue();
+			if (value instanceof CodeableConcept) {
+				etlRecord.setResult(fhirObservation.getValueCodeableConcept().getCodingFirstRep().getDisplay());
+			} else if (value instanceof IntegerType) {
+				etlRecord.setResult(fhirObservation.getValueIntegerType().asStringValue());
+			} else if (value instanceof Quantity) {
+				etlRecord.setResult(fhirObservation.getValueQuantity().getValue().toPlainString());
+			} else if (value instanceof StringType) {
+				etlRecord.setResult(fhirObservation.getValueStringType().asStringValue());
+			}
+		}
+
+		if (fhirObservation.hasStatus()) {
+			etlRecord.setOrder_status(fhirObservation.getStatus().toString());
+		}
+	}
+
+	private void putPatientValuesIntoETLRecord(ETLRecord etlRecord, Patient fhirPatient) {
+		log.trace("putPatientValuesIntoETLRecord");
+		etlRecord.setPatientId(fhirPatient.getId());
+		if (fhirPatient.hasIdentifier()) {
+			for (Identifier identifier : fhirPatient.getIdentifier()) {
+				if (identifier.getSystem().equalsIgnoreCase("http://openelis-global.org/pat_nationalId")) {
+					etlRecord.setIdentifier(identifier.getValue());
+				}
+			}
+		}
+
+		if (fhirPatient.hasGender()) {
+			etlRecord.setSex(fhirPatient.getGender().toString());
+		}
+
+		if (fhirPatient.hasBirthDate()) {
+			etlRecord.setBirthdate(new java.sql.Timestamp(fhirPatient.getBirthDate().getTime()));
+		}
+
+		if (fhirPatient.hasName()) {
+			HumanName name = fhirPatient.getNameFirstRep();
+			if (name.hasFamily()) {
+				etlRecord.setLast_name(name.getFamily());
+			}
+			if (name.hasGiven()) {
+				etlRecord.setFirst_name(name.getGivenAsSingleString());
+			}
+		}
+
+		if (fhirPatient.hasAddress()) {
+			Address address = fhirPatient.getAddressFirstRep();
+			etlRecord.setAddress_street(StringUtils
+					.join(address.getLine().stream().map(e -> e.asStringValue()).collect(Collectors.toList()), ", "));
+			etlRecord.setAddress_city(address.getCity());
+			etlRecord.setAddress_country(address.getCountry());
+		}
+
+		if (fhirPatient.hasTelecom()) {
+			for (ContactPoint contact : fhirPatient.getTelecom()) {
+				if (ContactPointUse.HOME.equals(contact.getUse())) {
+					etlRecord.setHome_phone(contact.getValue());
+				} else if (ContactPointUse.WORK.equals(contact.getUse())) {
+					etlRecord.setWork_phone(contact.getValue());
+				}
+			}
+		}
+		LocalDate birthdate = LocalDate.parse(etlRecord.getBirthdate().toString().substring(0, 10));
+		LocalDate date_entered = LocalDate.parse(etlRecord.getDate_entered().toString().substring(0, 10));
+		if ((etlRecord.getBirthdate() != null) && (etlRecord.getDate_entered() != null)) {
+			int age_days = Period.between(birthdate, date_entered).getDays();
+			int age_years = Period.between(birthdate, date_entered).getYears();
+			int age_months = Period.between(birthdate, date_entered).getMonths();
+			int age_weeks = Math.round(age_days) / 7;
+
+			if (age_days > 3) {
+				etlRecord.setAge_weeks(age_weeks + 1);
+			}
+			if (age_weeks > 2) {
+				etlRecord.setAge_months(age_months + 1);
+			}
+			etlRecord.setAge_years((age_months > 5) ? age_years + 1 : age_years);
+			etlRecord.setAge_months((12 * age_years) + age_months);
+			etlRecord.setAge_weeks((52 * age_years) + (4 * age_months) + age_weeks);
+		}
+
+	}
+
+	private void putServiceRequestValuesIntoETLRecord(ETLRecord etlRecord, ServiceRequest fhirServiceRequest) {
+		log.trace("putServiceRequestValuesIntoETLRecord");
+		if (fhirServiceRequest.hasRequisition()) {
+			etlRecord.setLabno(fhirServiceRequest.getRequisition().getValue());
+		}
+		if (fhirServiceRequest.hasCategory()) {
+			etlRecord.setProgram(fhirServiceRequest.getCategoryFirstRep().getCodingFirstRep().getDisplay());
+		}
+		if (fhirServiceRequest.hasCode()) {
+			etlRecord.setTest(fhirServiceRequest.getCode().getCodingFirstRep().getDisplay());
+		}
+		if (fhirServiceRequest.hasAuthoredOn()) {
+			etlRecord.setDate_entered(new Timestamp(fhirServiceRequest.getAuthoredOn().getTime()));
+		}
+	}
+
 	public List<ETLRecord> getLatestFhirforETL(List<Observation> observations) {
 		log.debug("getLatestFhirforETL:size: " + observations.size());
 
@@ -84,7 +299,7 @@ public class ETLServiceImpl implements ETLService {
 		for (Observation observation : observations) {
 			fhirObservation = observation;
 			System.out.println("observation: " + fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
-//	            log.debug( "glfe: " +   fhirObservation.getBasedOnFirstRep().getReference().toString());
+//            log.debug( "glfe: " +   fhirObservation.getBasedOnFirstRep().getReference().toString());
 			String srString = fhirObservation.getBasedOnFirstRep().getReference().toString();
 			String srUuidString = srString.substring(srString.lastIndexOf("/") + 1);
 
@@ -234,31 +449,26 @@ public class ETLServiceImpl implements ETLService {
 					}
 
 					org.json.simple.JSONArray address = JSONUtils.getAsArray(patientJson.get("address"));
-					if (address != null) {
-						for (j = 0; j < address.size(); ++j) {
-							JSONObject jAddress = JSONUtils.getAsObject(address.get(j));
-							org.json.simple.JSONArray jLines = JSONUtils.getAsArray(jAddress.get("line"));
-							if (jLines.get(0) != null) {
-								etlRecord.setAddress_street(jLines.get(0).toString());
-							}
-							if (jAddress.get("city") != null) {
-								etlRecord.setAddress_city(jAddress.get("city").toString());
-							}
-							if (jAddress.get("country") != null) {
-								etlRecord.setAddress_country(jAddress.get("country").toString());
-							}
-						}
+					for (j = 0; j < address.size(); ++j) {
+						JSONObject jAddress = JSONUtils.getAsObject(address.get(j));
+						org.json.simple.JSONArray jLines = JSONUtils.getAsArray(jAddress.get("line"));
+						etlRecord.setAddress_street(jLines.get(0).toString());
+						etlRecord.setAddress_city(jAddress.get("city").toString());
+//                        etlRecord.setAddress_country(jAddress.get("country").toString());
 					}
 
 					org.json.simple.JSONArray telecom = JSONUtils.getAsArray(patientJson.get("telecom"));
 					for (j = 0; j < telecom.size(); ++j) {
+						// log.debug( "glfe: " + telecom.get(j).toString());
 						JSONObject jTelecom = JSONUtils.getAsObject(telecom.get(j));
 
-						if (jTelecom.get("system").toString().equalsIgnoreCase("other")
-								&& jTelecom.get("value") != null) {
+						if (jTelecom.get("system").toString().equalsIgnoreCase("other")) {
+							// log.debug( "glfe: " + jTelecom.get("system").toString());
+							// log.debug( "glfe: " + jTelecom.get("value").toString());
 							etlRecord.setHome_phone(jTelecom.get("value").toString());
-						} else if (jTelecom.get("system").toString().equalsIgnoreCase("sms")
-								&& jTelecom.get("value") != null) {
+						} else if (jTelecom.get("system").toString().equalsIgnoreCase("sms")) {
+							// log.debug( "glfe: " + jTelecom.get("system").toString());
+							// log.debug( "glfe: " + jTelecom.get("value").toString());
 							etlRecord.setWork_phone(jTelecom.get("value").toString());
 						}
 					}
@@ -301,13 +511,13 @@ public class ETLServiceImpl implements ETLService {
 					}
 					etlRecord.setProgram(jCoding.get("display").toString());
 
-//	                    reqRef = JSONUtils.getAsObject(srJson.get("locationReference"));
-//	                    System.out.println("srReq:" + reqRef.get("system").toString());
-//	                    System.out.println("srReq:" + reqRef.get("value").toString());
-//	                    etlRecord.setCode_referer(reqRef.get("value").toString());
+//                    reqRef = JSONUtils.getAsObject(srJson.get("locationReference"));
+//                    System.out.println("srReq:" + reqRef.get("system").toString());
+//                    System.out.println("srReq:" + reqRef.get("value").toString());
+//                    etlRecord.setCode_referer(reqRef.get("value").toString());
 
-//	                    etlRecord.setReferer(fhirPractitioner.getName().get(0).getGivenAsSingleString() +
-//	                            fhirPractitioner.getName().get(0).getFamily());
+//                    etlRecord.setReferer(fhirPractitioner.getName().get(0).getGivenAsSingleString() +
+//                            fhirPractitioner.getName().get(0).getFamily());
 
 					code = JSONUtils.getAsObject(srJson.get("code"));
 					coding = JSONUtils.getAsArray(code.get("coding"));
@@ -315,7 +525,7 @@ public class ETLServiceImpl implements ETLService {
 						// log.debug( "glfe: " + coding.get(0).toString());
 						jCoding = JSONUtils.getAsObject(coding.get(0));
 						// log.debug( "glfe: " + jCoding.get("system").toString());
-//	                        log.debug( "glfe: " + jCoding.get("code").toString());
+//                        log.debug( "glfe: " + jCoding.get("code").toString());
 						// log.debug( "glfe: " + jCoding.get("display").toString());
 					}
 
@@ -378,41 +588,42 @@ public class ETLServiceImpl implements ETLService {
 						// log.debug( "glfe: " + jCoding.get("display").toString());
 					}
 					// 2021-04-29T16:58:51-07:00
-
-					if (specimenJson.get("receivedTime") != null) {
+					try {
 						String timestampToDate = specimenJson.get("receivedTime").toString().substring(0, 10);
 						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-						Date parsedDate = null;
-						try {
-							parsedDate = dateFormat.parse(timestampToDate);
-						} catch (ParseException e) {
-						}
+						Date parsedDate = dateFormat.parse(timestampToDate);
 						Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
 						etlRecord.setDate_recpt(timestamp);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 
 					JSONObject jCollection = JSONUtils.getAsObject(specimenJson.get("collection"));
-					if (jCollection != null) {
-						JSONObject jCollectedDateTime = JSONUtils.getAsObject(jCollection.get("collectedDateTime"));
-						try {
-							String timestampToDate = jCollectedDateTime.toString().substring(0, 10);
-							SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-							Date parsedDate = dateFormat.parse(timestampToDate);
-							Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
-							etlRecord.setDate_collect(timestamp);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+//                    JSONObject jCollectedDateTime = JSONUtils.getAsObject(jCollection.get("collectedDateTime"));
+					// log.debug( "glfe: " + jCollection.get("collectedDateTime").toString());
+					try {
+						String timestampToDate = jCollection.get("collectedDateTime").toString().substring(0, 10);
+						SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+						Date parsedDate = dateFormat.parse(timestampToDate);
+						Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
+						etlRecord.setDate_collect(timestamp);
+					} catch (Exception e) {
+						e.printStackTrace();
 					}
 				}
 
 				String practitionerStr = fhirUtil.getFhirParser().encodeResourceToString(fhirPractitioner);
+				// log.debug( "glfe:practitionerStr: " + practitionerStr);
 				JSONObject practitionerJson = null;
 				practitionerJson = JSONUtils.getAsObject(practitionerStr);
+				// log.debug( "glfe: " + practitionerJson.toString());
 				if (!JSONUtils.isEmpty(practitionerJson)) {
 					org.json.simple.JSONArray name = JSONUtils.getAsArray(practitionerJson.get("name"));
 					for (j = 0; j < name.size(); ++j) {
+						// log.debug( "glfe: " + name.get(j).toString());
 						JSONObject jName = JSONUtils.getAsObject(name.get(j));
+						// log.debug( "glfe: " + jName.get("family").toString());
+						// log.debug( "glfe: " + jName.get("given").toString());
 						org.json.simple.JSONArray givenName = JSONUtils.getAsArray(jName.get("given"));
 						etlRecord.setReferer(givenName.get(0).toString() + " " + jName.get("family").toString());
 					}

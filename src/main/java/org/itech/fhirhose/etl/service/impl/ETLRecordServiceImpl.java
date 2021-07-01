@@ -25,9 +25,9 @@ public class ETLRecordServiceImpl extends CrudServiceImpl<ETLRecord, Long> imple
 
 	@Override
 	public boolean saveAll(List<ETLRecord> etlRecords) {
-		log.debug("ETLRecordServiceImpl:saveAll: " + etlRecords.size());
+		log.debug("saveAll: " + etlRecords.size());
 		List<ETLRecord> savedRecords = etlRecordRepository.saveAll(etlRecords);
-		log.debug("ETLRecordServiceImpl:savedRecords: " + savedRecords.size());
+		log.debug("savedRecords: " + savedRecords.size());
 		if (etlRecords.size() == savedRecords.size()) {
 			return true;
 		} else {
