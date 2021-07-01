@@ -4,8 +4,10 @@ COPY ./src /bulk-data-requester/src/
 WORKDIR /bulk-data-requester/
 RUN mvn clean install -DskipTests
 
-FROM tomcat:8.5-jdk11
-#RUN apk --no-cache add openjdk11
+FROM alpine:3.14
+RUN apk update
+RUN apk --no-cache add openjdk11
+RUN apk add --no-cache bash
 
 #RUN addgroup -S spring && adduser -S spring -G spring
 #USER spring:spring
