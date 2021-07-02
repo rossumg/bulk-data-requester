@@ -6,28 +6,16 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
 
 @Configuration
 public class HttpClientConfig {
+	HttpClientConfigProperties properties;
 
-    @Value("${server.ssl.trust-store}")
-    private Resource trustStore;
-
-    @Value("${server.ssl.trust-store-password}")
-    private String trustStorePassword;
-
-    @Value("${server.ssl.key-store}")
-    private Resource keyStore;
-
-    @Value("${server.ssl.key-store-password}")
-    private String keyStorePassword;
-
-    @Value("${server.ssl.key-password}")
-    private String keyPassword;
+	public HttpClientConfig(HttpClientConfigProperties properties) {
+		this.properties = properties;
+	}
 
     @Bean
     public CloseableHttpClient httpClient() throws Exception {
@@ -40,7 +28,10 @@ public class HttpClientConfig {
 
     public SSLContext sslContext() throws Exception {
         return SSLContextBuilder.create()
-                .loadKeyMaterial(keyStore.getFile(), keyStorePassword.toCharArray(), keyPassword.toCharArray())
-                .loadTrustMaterial(trustStore.getFile(), trustStorePassword.toCharArray()).build();
+				.loadKeyMaterial(properties.getKeyStore().getFile(), properties.getKeyStorePassword().toCharArray(),
+						properties.getKeyPassword().toCharArray())
+				.loadTrustMaterial(properties.getTrustStore().getFile(),
+						properties.getTrustStorePassword().toCharArray())
+				.build();
     }
 }
