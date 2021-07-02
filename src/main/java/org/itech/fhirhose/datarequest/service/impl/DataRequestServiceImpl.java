@@ -78,7 +78,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 	@Override
 	@Async
 	@Transactional
-	public synchronized void runDataRequestTasksForServer(Long serverId) {
+	public void runDataRequestTasksForServer(Long serverId) {
 		Server server = serverService.getDAO().findById(serverId).get();
 		for (DataRequestTask dataRequestTask : serverDataRequestTaskService.getDAO()
 				.findDataRequestTasksFromServer(server.getId())) {
@@ -92,7 +92,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 	@Override
 	@Async
 	@Transactional
-	public synchronized void runDataRequestTask(Long dataRequestTaskId) {
+	public void runDataRequestTask(Long dataRequestTaskId) {
 		DataRequestTask dataRequestTask = dataRequestTaskDAO.findById(dataRequestTaskId).get();
 		runDataRequestTask(dataRequestTask);
 		log.debug("finished sending request for dataRequestTask " + dataRequestTask.getId());
@@ -103,7 +103,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 		synchronized (activeDataRequestTaskHolder) {
 			if (activeDataRequestTaskHolder.contains(dataRequestTask.getId())) {
 				log.debug("task " + dataRequestTask.getId()
-						+ " already running. Aborting runDataRequestTask until it completes.");
+						+ " already running. Aborting runDataRequestTask until active attempt is completes.");
 				return;
 			} else {
 				activeDataRequestTaskHolder.addDataRequestTask(dataRequestTask);
@@ -117,6 +117,11 @@ public class DataRequestServiceImpl implements DataRequestService {
 				runDataRequestAttempt(dataRequestAttempt);
 				dataRequestStatusService.changeDataRequestAttemptStatus(dataRequestAttempt.getId(),
 						DataRequestStatus.COMPLETE);
+				synchronized (activeDataRequestTaskHolder) {
+					if (activeDataRequestTaskHolder.contains(dataRequestTask.getId())) {
+						activeDataRequestTaskHolder.removeDataRequestTask(dataRequestTask);
+					}
+				}
 				return;
 			} catch (RuntimeException e) {
 				log.warn("exception occured while running dataRequest task", e);
@@ -124,6 +129,11 @@ public class DataRequestServiceImpl implements DataRequestService {
 		}
 		log.error("could not complete a dataRequest task");
 		dataRequestStatusService.changeDataRequestAttemptStatus(dataRequestAttempt.getId(), DataRequestStatus.FAILED);
+		synchronized (activeDataRequestTaskHolder) {
+			if (activeDataRequestTaskHolder.contains(dataRequestTask.getId())) {
+				activeDataRequestTaskHolder.removeDataRequestTask(dataRequestTask);
+			}
+		}
 
 	}
 
