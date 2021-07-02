@@ -28,8 +28,7 @@ public class DataRequestCheckerServiceImpl implements DataRequestCheckerService 
 	private DataRequestService dataRequestService;
 
 	public DataRequestCheckerServiceImpl(ServerService serverService,
-			DataRequestTaskService serverDataRequestTaskService,
-			DataRequestAttemptDAO dataRequestAttemptRepository,
+			DataRequestTaskService serverDataRequestTaskService, DataRequestAttemptDAO dataRequestAttemptRepository,
 			DataRequestService dataRequestService) {
 		log.info(this.getClass().getName() + " has started");
 		this.serverService = serverService;
@@ -63,6 +62,7 @@ public class DataRequestCheckerServiceImpl implements DataRequestCheckerService 
 				if (nextDataRequestTime.compareTo(now) <= 0) {
 					log.debug("server found with dataRequest task needing to be run");
 					dataRequestService.runDataRequestTask(dataRequestTask.getId());
+
 				}
 
 			}

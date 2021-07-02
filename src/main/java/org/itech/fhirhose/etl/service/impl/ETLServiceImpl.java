@@ -86,6 +86,9 @@ public class ETLServiceImpl implements ETLService {
 		int i = -1;
 		for (Observation observation : observations) {
 			log.trace("convertToEtlRecords:observation " + ++i);
+			if (i % 100 == 0) {
+				log.debug("convertToEtlRecords:observation " + i);
+			}
 			Observation fhirObservation = observation;
 			Patient fhirPatient = new Patient();
 			ServiceRequest fhirServiceRequest = new ServiceRequest();
@@ -198,7 +201,7 @@ public class ETLServiceImpl implements ETLService {
 
 	private void putPatientValuesIntoETLRecord(ETLRecord etlRecord, Patient fhirPatient) {
 		log.trace("putPatientValuesIntoETLRecord");
-		etlRecord.setPatientId(fhirPatient.getId());
+		etlRecord.setPatientId(fhirPatient.getIdElement().getIdPart());
 		if (fhirPatient.hasIdentifier()) {
 			for (Identifier identifier : fhirPatient.getIdentifier()) {
 				if (identifier.getSystem().equalsIgnoreCase("http://openelis-global.org/pat_nationalId")) {

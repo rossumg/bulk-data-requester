@@ -29,6 +29,7 @@ import org.itech.fhirhose.datarequest.service.FhirResourceGroupService;
 import org.itech.fhirhose.datarequest.service.ServerService;
 import org.itech.fhirhose.datarequest.service.data.model.DataRequestAttemptService;
 import org.itech.fhirhose.datarequest.service.data.model.DataRequestTaskService;
+import org.itech.fhirhose.datarequest.service.queue.ActiveDataRequestTaskHolder;
 import org.itech.fhirhose.etl.service.ETLService;
 import org.itech.fhirhose.fhir.FhirUtil;
 import org.springframework.scheduling.annotation.Async;
@@ -54,12 +55,13 @@ public class DataRequestServiceImpl implements DataRequestService {
 	private FhirResourceGroupService fhirResources;
 	private ServerResourceIdMapDAO remoteIdToLocalIdDAO;
 	private ETLService etlService;
+	private ActiveDataRequestTaskHolder activeDataRequestTaskHolder;
 
 	public DataRequestServiceImpl(FhirUtil fhirUtil, ServerService serverService,
 			DataRequestTaskService serverDataRequestTaskService, DataRequestTaskDAO dataRequestTaskDAO,
 			DataRequestAttemptService dataRequestAttemptService, DataRequestStatusService dataRequestStatusService,
-			FhirResourceGroupService fhirResources, ServerResourceIdMapDAO remoteIdToLocalIdDAO,
-			ETLService etlService) {
+			FhirResourceGroupService fhirResources, ServerResourceIdMapDAO remoteIdToLocalIdDAO, ETLService etlService,
+			ActiveDataRequestTaskHolder activeDataRequestTaskHolder) {
 		this.fhirUtil = fhirUtil;
 
 		this.serverService = serverService;
@@ -70,6 +72,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 		this.fhirResources = fhirResources;
 		this.remoteIdToLocalIdDAO = remoteIdToLocalIdDAO;
 		this.etlService = etlService;
+		this.activeDataRequestTaskHolder = activeDataRequestTaskHolder;
 	}
 
 	@Override
@@ -97,6 +100,16 @@ public class DataRequestServiceImpl implements DataRequestService {
 
 	private void runDataRequestTask(DataRequestTask dataRequestTask) {
 		log.debug("running dataRequest task " + dataRequestTask.getId());
+		synchronized (activeDataRequestTaskHolder) {
+			if (activeDataRequestTaskHolder.contains(dataRequestTask.getId())) {
+				log.debug("task " + dataRequestTask.getId()
+						+ " already running. Aborting runDataRequestTask until it completes.");
+				return;
+			} else {
+				activeDataRequestTaskHolder.addDataRequestTask(dataRequestTask);
+			}
+		}
+
 		DataRequestAttempt dataRequestAttempt = new DataRequestAttempt(dataRequestTask);
 		dataRequestAttempt = dataRequestAttemptService.getDAO().save(dataRequestAttempt);
 		for (int i = 0; i < dataRequestAttempt.getDataRequestTask().getDataRequestAttemptRetries(); ++i) {
@@ -111,6 +124,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 		}
 		log.error("could not complete a dataRequest task");
 		dataRequestStatusService.changeDataRequestAttemptStatus(dataRequestAttempt.getId(), DataRequestStatus.FAILED);
+
 	}
 
 	private void runDataRequestAttempt(DataRequestAttempt dataRequestAttempt) {
