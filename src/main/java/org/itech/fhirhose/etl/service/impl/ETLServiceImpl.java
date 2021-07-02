@@ -95,7 +95,7 @@ public class ETLServiceImpl implements ETLService {
 			Practitioner fhirPractitioner = new Practitioner();
 			Specimen fhirSpecimen = new Specimen();
 
-			log.debug("observation: " + fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
+			log.trace("observation: " + fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
 			log.trace("observation based on id: " + fhirObservation.getBasedOnFirstRep().getReference());
 			// get ServiceRequest
 			if (fhirObservation.getBasedOnFirstRep().hasReference()) {
@@ -105,7 +105,7 @@ public class ETLServiceImpl implements ETLService {
 						.resource(ServiceRequest.class)//
 						.withId(srString)//
 						.execute();
-				log.debug("fhirServiceRequest: " + fhirUtil.getFhirParser().encodeResourceToString(fhirServiceRequest));
+				log.trace("fhirServiceRequest: " + fhirUtil.getFhirParser().encodeResourceToString(fhirServiceRequest));
 			}
 
 			// get Practitioner
