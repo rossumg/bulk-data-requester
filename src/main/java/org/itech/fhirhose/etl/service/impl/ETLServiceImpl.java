@@ -242,9 +242,9 @@ public class ETLServiceImpl implements ETLService {
 				}
 			}
 		}
-		LocalDate birthdate = LocalDate.parse(etlRecord.getBirthdate().toString().substring(0, 10));
-		LocalDate date_entered = LocalDate.parse(etlRecord.getDate_entered().toString().substring(0, 10));
 		if ((etlRecord.getBirthdate() != null) && (etlRecord.getDate_entered() != null)) {
+			LocalDate birthdate = etlRecord.getBirthdate().toLocalDateTime().toLocalDate();
+			LocalDate date_entered = etlRecord.getDate_entered().toLocalDateTime().toLocalDate();
 			int age_days = Period.between(birthdate, date_entered).getDays();
 			int age_years = Period.between(birthdate, date_entered).getYears();
 			int age_months = Period.between(birthdate, date_entered).getMonths();

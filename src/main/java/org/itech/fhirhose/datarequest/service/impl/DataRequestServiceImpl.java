@@ -35,6 +35,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ca.uhn.fhir.rest.api.SearchTotalModeEnum;
 import ca.uhn.fhir.rest.client.api.IGenericClient;
 import ca.uhn.fhir.rest.param.DateRangeParam;
 import lombok.extern.slf4j.Slf4j;
@@ -55,9 +56,8 @@ public class DataRequestServiceImpl implements DataRequestService {
 	private ETLService etlService;
 
 	public DataRequestServiceImpl(FhirUtil fhirUtil, ServerService serverService,
-			DataRequestTaskService serverDataRequestTaskService,
-			DataRequestTaskDAO dataRequestTaskDAO, DataRequestAttemptService dataRequestAttemptService,
-			DataRequestStatusService dataRequestStatusService,
+			DataRequestTaskService serverDataRequestTaskService, DataRequestTaskDAO dataRequestTaskDAO,
+			DataRequestAttemptService dataRequestAttemptService, DataRequestStatusService dataRequestStatusService,
 			FhirResourceGroupService fhirResources, ServerResourceIdMapDAO remoteIdToLocalIdDAO,
 			ETLService etlService) {
 		this.fhirUtil = fhirUtil;
@@ -142,21 +142,25 @@ public class DataRequestServiceImpl implements DataRequestService {
 			Map<String, List<String>> searchParameters = createSearchParams(resourceSearchParamsSet.getKey(),
 					resourceSearchParamsSet.getValue());
 
-			IGenericClient sourceFhirClient = fhirUtil.getFhirClient(
-					dataRequestAttempt.getDataRequestTask().getRemoteServer().getServerUrl().toString());
+			IGenericClient sourceFhirClient = fhirUtil
+					.getFhirClient(dataRequestAttempt.getDataRequestTask().getRemoteServer().getServerUrl().toString());
 
 			Bundle searchBundle = sourceFhirClient//
 					.search()//
 					.forResource(resourceSearchParamsSet.getKey().name())//
 					.whereMap(searchParameters)//
 					.lastUpdated(dateRange)//
+					.totalMode(SearchTotalModeEnum.ACCURATE)//
 					.returnBundle(Bundle.class).execute();
 			log.trace("received json " + fhirUtil.getFhirParser().encodeResourceToString(searchBundle));
-			log.debug("received " + searchBundle.getTotal() + " entries of " + resourceSearchParamsSet.getKey());
+			if (searchBundle.hasTotal()) {
+				log.debug("received " + searchBundle.getTotal() + " entries of " + resourceSearchParamsSet.getKey());
+			}
 			searchBundles.add(searchBundle);
 
 			do {
 				if (searchBundle.getLink(Bundle.LINK_NEXT) != null) {
+					log.debug("getting next bundle");
 					searchBundle = sourceFhirClient.loadPage().next(searchBundle).execute();
 					searchBundles.add(searchBundle);
 				} else {
