@@ -103,7 +103,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 		synchronized (activeDataRequestTaskHolder) {
 			if (activeDataRequestTaskHolder.contains(dataRequestTask.getId())) {
 				log.debug("task " + dataRequestTask.getId()
-						+ " already running. Aborting runDataRequestTask until active attempt is completes.");
+						+ " already running. Aborting runDataRequestTask until active attempt is completed.");
 				return;
 			} else {
 				activeDataRequestTaskHolder.addDataRequestTask(dataRequestTask);
@@ -119,7 +119,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 						DataRequestStatus.COMPLETE);
 				synchronized (activeDataRequestTaskHolder) {
 					if (activeDataRequestTaskHolder.contains(dataRequestTask.getId())) {
-						activeDataRequestTaskHolder.removeDataRequestTask(dataRequestTask);
+						activeDataRequestTaskHolder.removeDataRequestTask(dataRequestTask.getId());
 					}
 				}
 				return;
@@ -131,7 +131,7 @@ public class DataRequestServiceImpl implements DataRequestService {
 		dataRequestStatusService.changeDataRequestAttemptStatus(dataRequestAttempt.getId(), DataRequestStatus.FAILED);
 		synchronized (activeDataRequestTaskHolder) {
 			if (activeDataRequestTaskHolder.contains(dataRequestTask.getId())) {
-				activeDataRequestTaskHolder.removeDataRequestTask(dataRequestTask);
+				activeDataRequestTaskHolder.removeDataRequestTask(dataRequestTask.getId());
 			}
 		}
 

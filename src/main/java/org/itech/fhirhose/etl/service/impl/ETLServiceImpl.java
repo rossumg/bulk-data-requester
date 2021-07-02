@@ -55,23 +55,26 @@ public class ETLServiceImpl implements ETLService {
 	@Override
 	public void createPersistETLRecords(List<Bundle> searchBundles) {
 		log.debug("createPersistETLRecords: ");
-		List<ETLRecord> etlRecordList = new ArrayList<>();
+		List<ETLRecord> etlRecordList;
+		if (searchBundles != null && searchBundles.size() > 0) {
+			int numObservations = searchBundles.size() * searchBundles.get(0).getEntry().size();
+			List<Observation> observations = new ArrayList<>(numObservations);
 
-		List<Observation> observations = new ArrayList<>();
-		for (Bundle bundle : searchBundles) {
-			for (BundleEntryComponent entry : bundle.getEntry()) {
-				observations.add((Observation) entry.getResource());
+			for (Bundle bundle : searchBundles) {
+				for (BundleEntryComponent entry : bundle.getEntry()) {
+					observations.add((Observation) entry.getResource());
+				}
 			}
-		}
-		log.debug("observations:size: " + observations.size());
-		etlRecordList = convertToEtlRecords(observations);
-		log.debug("etlRecordList:size: " + etlRecordList.size());
+			log.debug("observations:size: " + observations.size());
+			etlRecordList = convertToEtlRecords(observations);
+			log.debug("etlRecordList:size: " + etlRecordList.size());
 
-		// add records to data mart
-		if (etlRecordService.saveAll(etlRecordList)) {
-			log.debug("saveAll:success ");
-		} else {
-			log.debug("saveAll:fail ");
+			// add records to data mart
+			if (etlRecordService.saveAll(etlRecordList)) {
+				log.debug("saveAll:success ");
+			} else {
+				log.debug("saveAll:fail ");
+			}
 		}
 
 	}
@@ -79,7 +82,7 @@ public class ETLServiceImpl implements ETLService {
 	private List<ETLRecord> convertToEtlRecords(List<Observation> observations) {
 		log.debug("convertToEtlRecords:observations:size: " + observations.size());
 
-		List<ETLRecord> etlRecordList = new ArrayList<>();
+		List<ETLRecord> etlRecordList = new ArrayList<>(observations.size());
 		IGenericClient localFhirClient = fhirUtil.getLocalFhirClient();
 
 		// csl
