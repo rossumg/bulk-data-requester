@@ -200,6 +200,8 @@ public class ETLServiceImpl implements ETLService {
 		if (fhirObservation.hasStatus()) {
 			etlRecord.setOrder_status(fhirObservation.getStatus().toString());
 		}
+
+		etlRecord.setExternalId(fhirObservation.getIdElement().getIdPart());
 	}
 
 	private void putPatientValuesIntoETLRecord(ETLRecord etlRecord, Patient fhirPatient) {

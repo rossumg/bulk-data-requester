@@ -89,11 +89,21 @@
 			<artifactId>commons-validator</artifactId>
 			<version>1.6</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.mattbertolini</groupId>
+			<artifactId>liquibase-slf4j</artifactId>
+			<version>1.2.1</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 		</dependency>
+
 	</dependencies>
 
 	<build>
