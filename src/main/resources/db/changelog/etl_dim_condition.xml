@@ -221,5 +221,6 @@ case
   end resultcode
 from datamart.etlrecord);
                 </sql>
+	</changeSet>
 
 </databaseChangeLog>
