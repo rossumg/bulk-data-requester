@@ -156,8 +156,8 @@ public class ETLServiceImpl implements ETLService {
 		ETLRecord etlRecord = new ETLRecord();
 		etlRecord.setData(fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
 		putObservationValuesIntoETLRecord(etlRecord, fhirObservation);
-		putPatientValuesIntoETLRecord(etlRecord, fhirPatient);
 		putServiceRequestValuesIntoETLRecord(etlRecord, fhirServiceRequest);
+		putPatientValuesIntoETLRecord(etlRecord, fhirPatient);
 		putSpecimenValuesIntoETLRecord(etlRecord, fhirSpecimen);
 		putPractitionerValuesIntoETLRecord(etlRecord, fhirPractitioner);
 		return etlRecord;
@@ -551,9 +551,10 @@ public class ETLServiceImpl implements ETLService {
 					}
 
 					// done here because data_entered is used for age
-					LocalDate birthdate = LocalDate.parse(etlRecord.getBirthdate().toString().substring(0, 10));
-					LocalDate date_entered = LocalDate.parse(etlRecord.getDate_entered().toString().substring(0, 10));
 					if ((etlRecord.getBirthdate() != null) && (etlRecord.getDate_entered() != null)) {
+						LocalDate birthdate = LocalDate.parse(etlRecord.getBirthdate().toString().substring(0, 10));
+						LocalDate date_entered = LocalDate
+								.parse(etlRecord.getDate_entered().toString().substring(0, 10));
 						int age_days = Period.between(birthdate, date_entered).getDays();
 						int age_years = Period.between(birthdate, date_entered).getYears();
 						int age_months = Period.between(birthdate, date_entered).getMonths();
