@@ -7,8 +7,10 @@
 
         <changeSet author="rossumg" id="5">
 		<preConditions onFail="MARK_RAN">
-			<tableExists tableName="datamart.agegroups1"/>
-                </preConditions>
+		 	<not>
+				<tableExists tableName="datamart.agegroups1"/>
+			</not>
+        </preConditions>
                 <sql>
 			create sequence if not exists datamart.agegroups1_seq start 1 increment 1;
 
@@ -18,7 +20,7 @@
      				startAge integer,
      				endAge integer);
 
-			insert into agegroups1 values 
+			insert into datamart.agegroups1 values 
 				(nextval('datamart.agegroups1_seq'), '0to14yrs',0,15),
 				(nextval('datamart.agegroups1_seq'), '15to19yrs',15,20),
 				(nextval('datamart.agegroups1_seq'), '20to39yrs',20,40),
@@ -30,7 +32,9 @@
         
        <changeSet author="rossumg" id="10">
 	        <preConditions onFail="MARK_RAN">
+	        <not>
                                 <tableExists tableName="datamart.cdcwk"/>
+                                </not>
                 </preConditions>
                 <sql>
 			create sequence if not exists datamart.cdcwk_seq start 1 increment 1;
@@ -153,10 +157,12 @@
 
 	<changeSet author="rossumg" id="15">
 	        <preConditions onFail="MARK_RAN">
-                                <tableExists tableName="datamart.etlrecord"/>
-                </preConditions>
-                <sql>
-CREATE TABLE IF NOT EXISTS clinlims.etlrecord
+	        <not>
+            	<tableExists tableName="datamart.etlrecord"/>
+            </not>
+            </preConditions>
+            <sql>
+CREATE TABLE IF NOT EXISTS datamart.etlrecord
 (
     id bigint NOT NULL,
     created timestamp without time zone,
@@ -193,7 +199,13 @@ CREATE TABLE IF NOT EXISTS clinlims.etlrecord
     work_phone character varying(255) COLLATE pg_catalog."default",
     CONSTRAINT etlrecord_pkey PRIMARY KEY (id)
 );
+		</sql>
+	</changeSet>
 
+
+
+	<changeSet author="rossumg" id="20">
+            <sql>
   create or replace view datamart.etlrecord_view as (
 select *,
 case
