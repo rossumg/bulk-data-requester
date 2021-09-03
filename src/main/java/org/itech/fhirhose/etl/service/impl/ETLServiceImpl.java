@@ -21,6 +21,7 @@ import org.hl7.fhir.r4.model.HumanName;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.IntegerType;
 import org.hl7.fhir.r4.model.Observation;
+import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Quantity;
@@ -96,6 +97,7 @@ public class ETLServiceImpl implements ETLService {
 			Patient fhirPatient = new Patient();
 			ServiceRequest fhirServiceRequest = new ServiceRequest();
 			Practitioner fhirPractitioner = new Practitioner();
+			Organization fhirOrganization = new Organization();
 			Specimen fhirSpecimen = new Specimen();
 
 			log.trace("observation: " + fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
@@ -110,6 +112,16 @@ public class ETLServiceImpl implements ETLService {
 						.execute();
 				log.trace("fhirServiceRequest: " + fhirUtil.getFhirParser().encodeResourceToString(fhirServiceRequest));
 			}
+			
+			// get Oragnaization
+            if (fhirServiceRequest.getLocationReferenceFirstRep().hasReference()) {
+                String oString = fhirServiceRequest.getLocationReferenceFirstRep().getReference();
+                log.trace("reading " + oString);
+                fhirOrganization = localFhirClient.read()//
+                        .resource(Organization.class)//
+                        .withId(oString)//
+                        .execute();
+            }
 
 			// get Practitioner
 			if (fhirServiceRequest.getRequester().hasReference()) {
@@ -140,9 +152,9 @@ public class ETLServiceImpl implements ETLService {
 						.withId(spString)//
 						.execute();
 			}
-
+			
 			ETLRecord etlRecord = convertoToETLRecord(fhirObservation, fhirPatient, fhirServiceRequest,
-					fhirPractitioner, fhirSpecimen);
+					fhirOrganization, fhirPractitioner, fhirSpecimen);
 
 			etlRecordList.add(etlRecord);
 		}
@@ -151,12 +163,13 @@ public class ETLServiceImpl implements ETLService {
 	}
 
 	private ETLRecord convertoToETLRecord(Observation fhirObservation, Patient fhirPatient,
-			ServiceRequest fhirServiceRequest, Practitioner fhirPractitioner, Specimen fhirSpecimen) {
+			ServiceRequest fhirServiceRequest, Organization fhirOrganization, Practitioner fhirPractitioner, Specimen fhirSpecimen) {
 		log.trace("convertoToETLRecord");
 		ETLRecord etlRecord = new ETLRecord();
 		etlRecord.setData(fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
 		putObservationValuesIntoETLRecord(etlRecord, fhirObservation);
 		putServiceRequestValuesIntoETLRecord(etlRecord, fhirServiceRequest);
+		putOrganizationValuesIntoETLRecord(etlRecord, fhirOrganization);
 		putPatientValuesIntoETLRecord(etlRecord, fhirPatient);
 		putSpecimenValuesIntoETLRecord(etlRecord, fhirSpecimen);
 		putPractitionerValuesIntoETLRecord(etlRecord, fhirPractitioner);
@@ -165,10 +178,10 @@ public class ETLServiceImpl implements ETLService {
 
 	private void putPractitionerValuesIntoETLRecord(ETLRecord etlRecord, Practitioner fhirPractitioner) {
 		log.trace("putPractitionerValuesIntoETLRecord");
-		if (fhirPractitioner.hasName()) {
-			etlRecord.setReferer(fhirPractitioner.getNameFirstRep().getGivenAsSingleString() + " "
-					+ fhirPractitioner.getNameFirstRep().getFamily());
-		}
+//		if (fhirPractitioner.hasName()) {
+//			etlRecord.setReferer(fhirPractitioner.getNameFirstRep().getGivenAsSingleString() + " "
+//					+ fhirPractitioner.getNameFirstRep().getFamily());
+//		}
 	}
 
 	private void putSpecimenValuesIntoETLRecord(ETLRecord etlRecord, Specimen fhirSpecimen) {
@@ -286,6 +299,13 @@ public class ETLServiceImpl implements ETLService {
 			etlRecord.setDate_entered(new Timestamp(fhirServiceRequest.getAuthoredOn().getTime()));
 		}
 	}
+	
+    private void putOrganizationValuesIntoETLRecord(ETLRecord etlRecord, Organization fhirOrganization) {
+        log.trace("putOrganizationValuesIntoETLRecord");
+        if (fhirOrganization.hasName()) {
+            etlRecord.setReferer(fhirOrganization.getName());
+        }
+    }
 
 	public List<ETLRecord> getLatestFhirforETL(List<Observation> observations) {
 		log.debug("getLatestFhirforETL:size: " + observations.size());
