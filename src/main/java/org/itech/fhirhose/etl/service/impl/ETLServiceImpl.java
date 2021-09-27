@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.validator.GenericValidator;
 import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
@@ -25,6 +26,7 @@ import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Quantity;
+import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Specimen;
 import org.hl7.fhir.r4.model.StringType;
@@ -103,7 +105,7 @@ public class ETLServiceImpl implements ETLService {
 			log.trace("observation: " + fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
 			log.trace("observation based on id: " + fhirObservation.getBasedOnFirstRep().getReference());
 			// get ServiceRequest
-			if (fhirObservation.getBasedOnFirstRep().hasReference()) {
+			if (hasReference(fhirObservation.getBasedOnFirstRep())) {
 				String srString = fhirObservation.getBasedOnFirstRep().getReference();
 				log.trace("reading " + srString);
 				fhirServiceRequest = localFhirClient.read()//
@@ -111,48 +113,63 @@ public class ETLServiceImpl implements ETLService {
 						.withId(srString)//
 						.execute();
 				log.trace("fhirServiceRequest: " + fhirUtil.getFhirParser().encodeResourceToString(fhirServiceRequest));
+			} else {
+				log.error("observation with id: " + fhirObservation.getIdElement().getIdPart()
+						+ " is missing a service request");
 			}
-			
-			// get Oragnaization
-            if (fhirServiceRequest.getLocationReferenceFirstRep().hasReference()) {
+
+			// get Organization
+			if (hasReference(fhirServiceRequest.getLocationReferenceFirstRep())) {
                 String oString = fhirServiceRequest.getLocationReferenceFirstRep().getReference();
                 log.trace("reading " + oString);
                 fhirOrganization = localFhirClient.read()//
                         .resource(Organization.class)//
                         .withId(oString)//
                         .execute();
-            }
+			} else {
+				log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+						+ " is missing a location reference");
+			}
 
 			// get Practitioner
-			if (fhirServiceRequest.getRequester().hasReference()) {
+			if (hasReference(fhirServiceRequest.getRequester())) {
 				String pracString = fhirServiceRequest.getRequester().getReference();
 				log.trace("reading " + pracString);
 				fhirPractitioner = localFhirClient.read()//
 						.resource(Practitioner.class)//
 						.withId(pracString)//
 						.execute();
+			} else {
+				log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+						+ " is missing a requester reference");
 			}
 
 			// get Patient
-			if (fhirObservation.getSubject().hasReference()) {
+			if (hasReference(fhirObservation.getSubject())) {
 				String patString = fhirObservation.getSubject().getReference();
 				log.trace("reading " + patString);
 				fhirPatient = localFhirClient.read()//
 						.resource(Patient.class)//
 						.withId(patString)//
 						.execute();
+			} else {
+				log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+						+ " is missing a subject reference");
 			}
 
 			// get Specimen
-			if (fhirObservation.getSpecimen().hasReference()) {
+			if (hasReference(fhirObservation.getSpecimen())) {
 				String spString = fhirObservation.getSpecimen().getReference();
 				log.trace("reading " + spString);
 				fhirSpecimen = localFhirClient.read()//
 						.resource(Specimen.class)//
 						.withId(spString)//
 						.execute();
+			} else {
+				log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+						+ " is missing a specimen reference");
 			}
-			
+
 			ETLRecord etlRecord = convertoToETLRecord(fhirObservation, fhirPatient, fhirServiceRequest,
 					fhirOrganization, fhirPractitioner, fhirSpecimen);
 
@@ -160,6 +177,11 @@ public class ETLServiceImpl implements ETLService {
 		}
 
 		return etlRecordList;
+	}
+
+	private boolean hasReference(Reference reference) {
+		return reference != null && reference.hasReference()
+				&& !GenericValidator.isBlankOrNull(StringUtils.trimToNull(reference.getReferenceElement().getIdPart()));
 	}
 
 	private ETLRecord convertoToETLRecord(Observation fhirObservation, Patient fhirPatient,
@@ -189,7 +211,7 @@ public class ETLServiceImpl implements ETLService {
 		if (fhirSpecimen.hasReceivedTime()) {
 			etlRecord.setDate_recpt(new Timestamp(fhirSpecimen.getReceivedTime().getTime()));
 		}
-		if (fhirSpecimen.hasCollection()) {
+		if (fhirSpecimen.hasCollection() && fhirSpecimen.getCollection().hasCollectedDateTimeType()) {
 			DateTimeType collectionTime = fhirSpecimen.getCollection().getCollectedDateTimeType();
 			etlRecord.setDate_collect(new Timestamp(collectionTime.getValue().getTime()));
 		}
@@ -299,7 +321,7 @@ public class ETLServiceImpl implements ETLService {
 			etlRecord.setDate_entered(new Timestamp(fhirServiceRequest.getAuthoredOn().getTime()));
 		}
 	}
-	
+
     private void putOrganizationValuesIntoETLRecord(ETLRecord etlRecord, Organization fhirOrganization) {
         log.trace("putOrganizationValuesIntoETLRecord");
         if (fhirOrganization.hasName()) {
