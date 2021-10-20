@@ -44,7 +44,14 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String order_status;
     private String test;
     private String result;
-
+    
+    private String passenger_type;
+    private String countries_visited;
+    private String flight;
+    private String date_of_arrival;
+    private String airline;
+    private String nationality;
+    private String seat;
 
     public ETLRecord() {
     }
