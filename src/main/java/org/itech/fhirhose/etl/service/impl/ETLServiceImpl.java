@@ -28,6 +28,8 @@ import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Quantity;
+import org.hl7.fhir.r4.model.QuestionnaireResponse;
+import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemComponent;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Specimen;
@@ -105,6 +107,7 @@ public class ETLServiceImpl implements ETLService {
 				Practitioner fhirPractitioner = new Practitioner();
 				Organization fhirOrganization = new Organization();
 				Specimen fhirSpecimen = new Specimen();
+				QuestionnaireResponse fhirQuestionnaireResponse = new QuestionnaireResponse();
 
 				log.trace("observation: " + fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
 				log.trace("observation based on id: " + fhirObservation.getBasedOnFirstRep().getReference());
@@ -121,10 +124,23 @@ public class ETLServiceImpl implements ETLService {
 				} else {
 					log.error("observation with id: " + fhirObservation.getIdElement().getIdPart()
 							+ " is missing a service request");
-				}
+                }
 
-				// get Organization
-				if (hasReference(fhirServiceRequest.getLocationReferenceFirstRep())) {
+                // get QuestionnaireResponse
+				Bundle bundle = localFhirClient.search()//
+			                .forResource(QuestionnaireResponse.class)//
+			                .returnBundle(Bundle.class)//
+			                .where(QuestionnaireResponse.BASED_ON.hasId(fhirServiceRequest.getId()))//
+			                .execute();
+				if (bundle.hasEntry()) {
+				     fhirQuestionnaireResponse = (QuestionnaireResponse) bundle.getEntryFirstRep().getResource();
+			    } else {
+                    log.error("QuestionnaireResponse with based on id: " + fhirServiceRequest.getId()
+                            + " is missing");
+                }
+				
+                // get Organization
+                if (hasReference(fhirServiceRequest.getLocationReferenceFirstRep())) {
 					String oString = fhirServiceRequest.getLocationReferenceFirstRep().getReference();
 					log.trace("reading " + oString);
 					fhirOrganization = localFhirClient.read()//
@@ -176,7 +192,7 @@ public class ETLServiceImpl implements ETLService {
 				}
 
 				ETLRecord etlRecord = convertoToETLRecord(fhirObservation, fhirPatient, fhirServiceRequest,
-						fhirOrganization, fhirPractitioner, fhirSpecimen);
+						fhirQuestionnaireResponse, fhirOrganization, fhirPractitioner, fhirSpecimen);
 
 				etlRecordList.add(etlRecord);
 			} catch (RuntimeException e) {
@@ -200,13 +216,14 @@ public class ETLServiceImpl implements ETLService {
 	}
 
 	private ETLRecord convertoToETLRecord(Observation fhirObservation, Patient fhirPatient,
-			ServiceRequest fhirServiceRequest, Organization fhirOrganization, Practitioner fhirPractitioner,
+			ServiceRequest fhirServiceRequest, QuestionnaireResponse fhirQuestionnaireResponse, Organization fhirOrganization, Practitioner fhirPractitioner,
 			Specimen fhirSpecimen) {
 		log.trace("convertoToETLRecord");
 		ETLRecord etlRecord = new ETLRecord();
 		etlRecord.setData(fhirUtil.getFhirParser().encodeResourceToString(fhirObservation));
 		putObservationValuesIntoETLRecord(etlRecord, fhirObservation);
 		putServiceRequestValuesIntoETLRecord(etlRecord, fhirServiceRequest);
+		putQuestionnaireResponseValuesIntoETLRecord(etlRecord, fhirQuestionnaireResponse);
 		putOrganizationValuesIntoETLRecord(etlRecord, fhirOrganization);
 		putPatientValuesIntoETLRecord(etlRecord, fhirPatient);
 		putSpecimenValuesIntoETLRecord(etlRecord, fhirSpecimen);
@@ -221,6 +238,39 @@ public class ETLServiceImpl implements ETLService {
 //					+ fhirPractitioner.getNameFirstRep().getFamily());
 //		}
 	}
+	
+    private void putQuestionnaireResponseValuesIntoETLRecord(ETLRecord etlRecord,
+            QuestionnaireResponse fhirQuestionnaireResponse) {
+        log.trace("putQuestionnaireResponseValuesIntoETLRecord");
+        if (fhirQuestionnaireResponse.hasItem()) {
+            for (QuestionnaireResponseItemComponent item : fhirQuestionnaireResponse.getItem()) {
+                switch (item.getText()) {
+                case "Reason for Visit":
+                    break;
+                case "Countries Vistied within 6 Months":
+                    etlRecord.setCountries_visited(item.getAnswerFirstRep().toString());
+                    break;
+                case "Flight":
+                    etlRecord.setFlight(item.getAnswerFirstRep().toString());
+                    break;
+                case "Date of Arrival":
+                    break;
+                case "Airline":
+                    etlRecord.setAirline(item.getAnswerFirstRep().toString());
+                    break;
+                case "Nationality":
+                    etlRecord.setNationality(item.getAnswerFirstRep().toString());
+                    break;
+                case "Seat":
+                    etlRecord.setSeat(item.getAnswerFirstRep().toString());
+                    break;
+                case "Address in MU":
+                    break;
+
+                }
+            }
+        }
+    }
 
 	private void putSpecimenValuesIntoETLRecord(ETLRecord etlRecord, Specimen fhirSpecimen) {
 		log.trace("putSpecimenValuesIntoETLRecord");
