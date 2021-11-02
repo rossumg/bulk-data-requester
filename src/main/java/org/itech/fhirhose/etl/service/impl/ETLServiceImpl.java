@@ -127,10 +127,11 @@ public class ETLServiceImpl implements ETLService {
                 }
 
                 // get QuestionnaireResponse
+				String srString = fhirObservation.getBasedOnFirstRep().getReference();
 				Bundle bundle = localFhirClient.search()//
 			                .forResource(QuestionnaireResponse.class)//
 			                .returnBundle(Bundle.class)//
-			                .where(QuestionnaireResponse.BASED_ON.hasId(fhirServiceRequest.getId()))//
+			                .where(QuestionnaireResponse.BASED_ON.hasId(srString))//
 			                .execute();
 				if (bundle.hasEntry()) {
 				     fhirQuestionnaireResponse = (QuestionnaireResponse) bundle.getEntryFirstRep().getResource();
