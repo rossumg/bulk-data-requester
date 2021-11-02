@@ -7,6 +7,7 @@ import org.itech.fhirhose.etl.dao.ETLRecordDAO;
 import org.itech.fhirhose.etl.model.ETLRecord;
 import org.itech.fhirhose.etl.service.ETLRecordService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class ETLRecordServiceImpl extends CrudServiceImpl<ETLRecord, Long> imple
 	}
 
 	@Override
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public boolean saveAll(List<ETLRecord> etlRecords) {
 		log.debug("saveAll: " + etlRecords.size());
 		List<ETLRecord> savedRecords = etlRecordRepository.saveAll(etlRecords);

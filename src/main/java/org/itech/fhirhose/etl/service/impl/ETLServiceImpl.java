@@ -62,26 +62,26 @@ public class ETLServiceImpl implements ETLService {
 	@Override
 	public void createPersistETLRecords(List<Bundle> searchBundles) {
 		log.debug("createPersistETLRecords: ");
-		List<ETLRecord> etlRecordList;
 		if (searchBundles != null && searchBundles.size() > 0) {
-			int numObservations = searchBundles.size() * searchBundles.get(0).getEntry().size();
-			List<Observation> observations = new ArrayList<>(numObservations);
 
 			for (Bundle bundle : searchBundles) {
+				int numObservations = searchBundles.get(0).getEntry().size();
+				List<Observation> observations = new ArrayList<>(numObservations);
 				for (BundleEntryComponent entry : bundle.getEntry()) {
 					observations.add((Observation) entry.getResource());
 				}
-			}
-			log.debug("observations:size: " + observations.size());
-			etlRecordList = convertToEtlRecords(observations);
-			log.debug("etlRecordList:size: " + etlRecordList.size());
+				log.debug("observations:size: " + observations.size());
+				List<ETLRecord> etlRecordList = convertToEtlRecords(observations);
+				log.debug("etlRecordList:size: " + etlRecordList.size());
 
-			// add records to data mart
-			if (etlRecordService.saveAll(etlRecordList)) {
-				log.debug("saveAll:success ");
-			} else {
-				log.debug("saveAll:fail ");
+				// add records to data mart
+				if (etlRecordService.saveAll(etlRecordList)) {
+					log.debug("saveAll:success ");
+				} else {
+					log.debug("saveAll:fail ");
+				}
 			}
+
 		}
 
 	}
