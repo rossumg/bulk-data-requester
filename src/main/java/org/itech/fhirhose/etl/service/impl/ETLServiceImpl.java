@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Quantity;
 import org.hl7.fhir.r4.model.QuestionnaireResponse;
+import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemComponent;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.ServiceRequest;
@@ -249,21 +251,25 @@ public class ETLServiceImpl implements ETLService {
                 case "Reason for Visit":
                     break;
                 case "Countries Vistied within 6 Months":
-                    etlRecord.setCountries_visited(item.getAnswerFirstRep().toString());
+                    List<String> countries = new LinkedList<>();
+                    for (QuestionnaireResponseItemAnswerComponent country : item.getAnswer()) {
+                        countries.add(country.getValue().toString());
+                    }
+                    etlRecord.setCountries_visited(String.join(",", countries));
                     break;
                 case "Flight":
-                    etlRecord.setFlight(item.getAnswerFirstRep().toString());
+                    etlRecord.setFlight(item.getAnswerFirstRep().getValue().toString());
                     break;
                 case "Date of Arrival":
                     break;
                 case "Airline":
-                    etlRecord.setAirline(item.getAnswerFirstRep().toString());
+                    etlRecord.setAirline(item.getAnswerFirstRep().getValue().toString());
                     break;
                 case "Nationality":
-                    etlRecord.setNationality(item.getAnswerFirstRep().toString());
+                    etlRecord.setNationality(item.getAnswerFirstRep().getValue().toString());
                     break;
                 case "Seat":
-                    etlRecord.setSeat(item.getAnswerFirstRep().toString());
+                    etlRecord.setSeat(item.getAnswerFirstRep().getValue().toString());
                     break;
                 case "Address in MU":
                     break;
