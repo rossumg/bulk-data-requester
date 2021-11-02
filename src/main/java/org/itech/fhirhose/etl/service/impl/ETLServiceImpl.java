@@ -127,17 +127,17 @@ public class ETLServiceImpl implements ETLService {
                 }
 
                 // get QuestionnaireResponse
-				String srString = fhirObservation.getBasedOnFirstRep().getReference();
+				String srString = fhirServiceRequest.getBasedOnFirstRep().getReference();
+				log.debug("convertToEtlRecords:search for QR.basedOn: " + srString);
 				Bundle bundle = localFhirClient.search()//
 			                .forResource(QuestionnaireResponse.class)//
 			                .returnBundle(Bundle.class)//
-			                .where(QuestionnaireResponse.BASED_ON.hasId(srString))//
+			                .where(QuestionnaireResponse.BASED_ON.hasAnyOfIds(srString))//
 			                .execute();
 				if (bundle.hasEntry()) {
 				     fhirQuestionnaireResponse = (QuestionnaireResponse) bundle.getEntryFirstRep().getResource();
 			    } else {
-                    log.error("QuestionnaireResponse with based on id: " + fhirServiceRequest.getId()
-                            + " is missing");
+                    log.error("QuestionnaireResponse with based on: " + srString + " is missing");
                 }
 				
                 // get Organization
