@@ -260,7 +260,7 @@ public class ETLServiceImpl implements ETLService {
                 case "Flight":
                     etlRecord.setFlight(item.getAnswerFirstRep().getValue().toString());
                     break;
-                case "Date of Arrival":
+                case "Date Of Arrival":
                     etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValue().toString());
                     break;
                 case "Purpose of Visit":
