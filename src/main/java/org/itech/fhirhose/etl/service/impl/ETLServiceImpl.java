@@ -263,8 +263,8 @@ public class ETLServiceImpl implements ETLService {
                 case "Date of Arrival":
                     etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValue().toString());
                     break;
-                case "Passenger Type":
-                    etlRecord.setPassenger_type(item.getAnswerFirstRep().getValue().toString());
+                case "Purpose of Visit":
+                    etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
                     break;
                 case "Airline":
                     etlRecord.setAirline(item.getAnswerFirstRep().getValue().toString());
