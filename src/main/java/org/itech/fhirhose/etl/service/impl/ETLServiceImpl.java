@@ -33,6 +33,7 @@ import org.hl7.fhir.r4.model.QuestionnaireResponse;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemAnswerComponent;
 import org.hl7.fhir.r4.model.QuestionnaireResponse.QuestionnaireResponseItemComponent;
 import org.hl7.fhir.r4.model.Reference;
+import org.hl7.fhir.r4.model.ResourceType;
 import org.hl7.fhir.r4.model.ServiceRequest;
 import org.hl7.fhir.r4.model.Specimen;
 import org.hl7.fhir.r4.model.StringType;
@@ -67,28 +68,44 @@ public class ETLServiceImpl implements ETLService {
 		if (searchBundles != null && searchBundles.size() > 0) {
 
 			for (Bundle bundle : searchBundles) {
-				int numObservations = searchBundles.get(0).getEntry().size();
-				List<Observation> observations = new ArrayList<>(numObservations);
+				int numResources = searchBundles.get(0).getEntry().size();
+				List<Observation> observations = new ArrayList<>(numResources);
+				List<ServiceRequest> serviceRequests = new ArrayList<>(numResources);
 				for (BundleEntryComponent entry : bundle.getEntry()) {
-					observations.add((Observation) entry.getResource());
+				    if(entry.getResource().getResourceType() == ResourceType.Observation) {
+				        observations.add((Observation) entry.getResource());
+				    }
+				    else if(entry.getResource().getResourceType() == ResourceType.ServiceRequest) {
+				        serviceRequests.add((ServiceRequest) entry.getResource());
+				    }
 				}
 				log.debug("observations:size: " + observations.size());
-				List<ETLRecord> etlRecordList = convertToEtlRecords(observations);
-				log.debug("etlRecordList:size: " + etlRecordList.size());
-
+				List<ETLRecord> etlObservationRecordList = convertObservationsToEtlRecords(observations);
+				log.debug("etlObservationRecordList: " + etlObservationRecordList.size());
+				
+				log.debug("serviceRequests: " + serviceRequests.size());
+                List<ETLRecord> etlServiceRequestRecordList = convertServiceRequestsToEtlRecords(serviceRequests);
+                log.debug("etlServiceRequestRecordList: " + etlServiceRequestRecordList.size());
+				
 				// add records to data mart
-				if (etlRecordService.saveAll(etlRecordList)) {
-					log.debug("saveAll:success ");
+				if (etlRecordService.saveAll(etlObservationRecordList)) {
+					log.debug("saveAllObservations:success ");
 				} else {
-					log.debug("saveAll:fail ");
+					log.debug("saveAllObservations:success ");
 				}
+				
+                if (etlRecordService.saveAll(etlServiceRequestRecordList)) {
+                    log.debug("saveAllServiceRequests:success ");
+                } else {
+                    log.debug("saveAllServiceRequests:success ");
+                }
 			}
 
 		}
 
 	}
 
-	private List<ETLRecord> convertToEtlRecords(List<Observation> observations) {
+	private List<ETLRecord> convertObservationsToEtlRecords(List<Observation> observations) {
 		log.debug("convertToEtlRecords:observations:size: " + observations.size());
 
 		List<ETLRecord> etlRecordList = new ArrayList<>(observations.size());
@@ -194,7 +211,7 @@ public class ETLServiceImpl implements ETLService {
 							+ " is missing a specimen reference");
 				}
 
-				ETLRecord etlRecord = convertoToETLRecord(fhirObservation, fhirPatient, fhirServiceRequest,
+				ETLRecord etlRecord = convertoToObservationETLRecord(fhirObservation, fhirPatient, fhirServiceRequest,
 						fhirQuestionnaireResponse, fhirOrganization, fhirPractitioner, fhirSpecimen);
 
 				etlRecordList.add(etlRecord);
@@ -213,12 +230,135 @@ public class ETLServiceImpl implements ETLService {
 		return etlRecordList;
 	}
 
+	private List<ETLRecord> convertServiceRequestsToEtlRecords(List<ServiceRequest> serviceRequests) {
+	    log.debug("convertToEtlRecords:observations:size: " + serviceRequests.size());
+
+	    List<ETLRecord> etlRecordList = new ArrayList<>(serviceRequests.size());
+	    IGenericClient localFhirClient = fhirUtil.getLocalFhirClient();
+
+	    int numFail = 0;
+	    int i = -1;
+	    for (ServiceRequest serviceRequest : serviceRequests) {
+	        try {
+	            log.trace("convertToEtlRecords:serviceRequest " + ++i);
+	            if (i % 100 == 0) {
+	                log.debug("convertToEtlRecords:serviceRequest " + i);
+	            }
+	            Patient fhirPatient = new Patient();
+	            ServiceRequest fhirServiceRequest = serviceRequest;
+	            Practitioner fhirPractitioner = new Practitioner();
+	            Organization fhirOrganization = new Organization();
+	            Specimen fhirSpecimen = new Specimen();
+	            QuestionnaireResponse fhirQuestionnaireResponse = new QuestionnaireResponse();
+
+//	            log.trace("serviceRequest: " + fhirUtil.getFhirParser().encodeResourceToString(fhirServiceRequest));
+//	            log.trace("serviceRequest based on id: " + fhirServiceRequest.getBasedOnFirstRep().getReference());
+//	            // get ServiceRequest
+//	            if (hasReference(fhirServiceRequest.getBasedOnFirstRep())) {
+//	                String srString = fhirServiceRequest.getBasedOnFirstRep().getReference();
+//	                log.trace("reading " + srString);
+//	                fhirServiceRequest = localFhirClient.read()//
+//	                        .resource(ServiceRequest.class)//
+//	                        .withId(srString)//
+//	                        .execute();
+//	                log.trace("fhirServiceRequest: "
+//	                        + fhirUtil.getFhirParser().encodeResourceToString(fhirServiceRequest));
+//	            } else {
+//	                log.error("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+//	                        + " is missing a service request");
+//	            }
+
+	            // get QuestionnaireResponse
+	            String srString = "ServiceRequest/" + serviceRequest.getId();
+	            log.debug("convertToEtlRecords:search for QR.basedOn: " + srString);
+	            Bundle bundle = localFhirClient.search()//
+	                    .forResource(QuestionnaireResponse.class)//
+	                    .returnBundle(Bundle.class)//
+	                    .where(QuestionnaireResponse.BASED_ON.hasAnyOfIds(srString))//
+	                    .execute();
+	            if (bundle.hasEntry()) {
+	                fhirQuestionnaireResponse = (QuestionnaireResponse) bundle.getEntryFirstRep().getResource();
+	            } else {
+	                log.error("QuestionnaireResponse with based on: " + srString + " is missing");
+	            }
+
+	            // get Organization
+	            if (hasReference(fhirServiceRequest.getLocationReferenceFirstRep())) {
+	                String oString = fhirServiceRequest.getLocationReferenceFirstRep().getReference();
+	                log.trace("reading " + oString);
+	                fhirOrganization = localFhirClient.read()//
+	                        .resource(Organization.class)//
+	                        .withId(oString)//
+	                        .execute();
+	            } else {
+	                log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+	                        + " is missing a location reference");
+	            }
+
+	            // get Practitioner
+	            if (hasReference(fhirServiceRequest.getRequester())) {
+	                String pracString = fhirServiceRequest.getRequester().getReference();
+	                log.trace("reading " + pracString);
+	                fhirPractitioner = localFhirClient.read()//
+	                        .resource(Practitioner.class)//
+	                        .withId(pracString)//
+	                        .execute();
+	            } else {
+	                log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+	                        + " is missing a requester reference");
+	            }
+
+	            // get Patient
+	            if (hasReference(fhirServiceRequest.getSubject())) {
+	                String patString = fhirServiceRequest.getSubject().getReference();
+	                log.trace("reading " + patString);
+	                fhirPatient = localFhirClient.read()//
+	                        .resource(Patient.class)//
+	                        .withId(patString)//
+	                        .execute();
+	            } else {
+	                log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+	                        + " is missing a subject reference");
+	            }
+
+	            // get Specimen 
+//	            if (hasReference(fhirObservation.getSpecimen())) {
+//	            if (true) {
+//	               
+//	                fhirSpecimen = localFhirClient.search()//
+//	                        .forResource(Specimen.class)//
+//	                        .where(Specimen.ACCESSION.exactly().code(serviceRequest.getRequisition().getValue())//
+//	                        .withId(spString)//
+//	                        .execute();
+//	            } else {
+//	                log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+//	                        + " is missing a specimen reference");
+//	            }
+
+	            ETLRecord etlRecord = convertoToServiceRequestETLRecord(fhirPatient, fhirServiceRequest,
+	                    fhirQuestionnaireResponse, fhirOrganization, fhirPractitioner, fhirSpecimen);
+
+	            etlRecordList.add(etlRecord);
+	        } catch (RuntimeException e) {
+	            numFail++;
+	            log.error("exception converting observation: " + serviceRequest.getIdElement().getIdPart());
+	            StringWriter sw = new StringWriter();
+	            e.printStackTrace(new PrintWriter(sw));
+	            log.error(sw.toString());
+	        }
+	    }
+	    if (numFail > 0) {
+	        log.warn("number of failed serviceRequest conversions: " + numFail);
+	    }
+
+	    return etlRecordList;
+	}
 	private boolean hasReference(Reference reference) {
 		return reference != null && reference.hasReference()
 				&& !GenericValidator.isBlankOrNull(StringUtils.trimToNull(reference.getReferenceElement().getIdPart()));
 	}
 
-	private ETLRecord convertoToETLRecord(Observation fhirObservation, Patient fhirPatient,
+	private ETLRecord convertoToObservationETLRecord(Observation fhirObservation, Patient fhirPatient,
 			ServiceRequest fhirServiceRequest, QuestionnaireResponse fhirQuestionnaireResponse, Organization fhirOrganization, Practitioner fhirPractitioner,
 			Specimen fhirSpecimen) {
 		log.trace("convertoToETLRecord");
@@ -233,6 +373,21 @@ public class ETLServiceImpl implements ETLService {
 		putPractitionerValuesIntoETLRecord(etlRecord, fhirPractitioner);
 		return etlRecord;
 	}
+	
+	   private ETLRecord convertoToServiceRequestETLRecord(Patient fhirPatient,
+	            ServiceRequest fhirServiceRequest, QuestionnaireResponse fhirQuestionnaireResponse, Organization fhirOrganization, Practitioner fhirPractitioner,
+	            Specimen fhirSpecimen) {
+	        log.trace("convertoToETLRecord");
+	        ETLRecord etlRecord = new ETLRecord();
+	        etlRecord.setData(fhirUtil.getFhirParser().encodeResourceToString(fhirServiceRequest));
+	        putServiceRequestValuesIntoETLRecord(etlRecord, fhirServiceRequest);
+	        putQuestionnaireResponseValuesIntoETLRecord(etlRecord, fhirQuestionnaireResponse);
+	        putOrganizationValuesIntoETLRecord(etlRecord, fhirOrganization);
+	        putPatientValuesIntoETLRecord(etlRecord, fhirPatient);
+	        putSpecimenValuesIntoETLRecord(etlRecord, fhirSpecimen);
+	        putPractitionerValuesIntoETLRecord(etlRecord, fhirPractitioner);
+	        return etlRecord;
+	    }
 
 	private void putPractitionerValuesIntoETLRecord(ETLRecord etlRecord, Practitioner fhirPractitioner) {
 		log.trace("putPractitionerValuesIntoETLRecord");
@@ -313,7 +468,7 @@ public class ETLServiceImpl implements ETLService {
 			etlRecord.setOrder_status(fhirObservation.getStatus().toString());
 		}
 
-		etlRecord.setExternalId(fhirObservation.getIdElement().getIdPart());
+		etlRecord.setExternalId("Observation/" + fhirObservation.getIdElement().getIdPart());
 	}
 
 	private void putPatientValuesIntoETLRecord(ETLRecord etlRecord, Patient fhirPatient) {
@@ -396,6 +551,10 @@ public class ETLServiceImpl implements ETLService {
 		}
 		if (fhirServiceRequest.hasAuthoredOn()) {
 			etlRecord.setDate_entered(new Timestamp(fhirServiceRequest.getAuthoredOn().getTime()));
+		}
+		
+		if (StringUtils.isAllBlank(etlRecord.getExternalId())) {
+		    etlRecord.setExternalId("ServiceRequest/" + fhirServiceRequest.getIdElement().getIdPart());
 		}
 	}
 
