@@ -91,13 +91,13 @@ public class ETLServiceImpl implements ETLService {
 				if (etlRecordService.saveAll(etlObservationRecordList)) {
 					log.debug("saveAllObservations:success ");
 				} else {
-					log.debug("saveAllObservations:success ");
+					log.debug("saveAllObservations:fail ");
 				}
 				
                 if (etlRecordService.saveAll(etlServiceRequestRecordList)) {
                     log.debug("saveAllServiceRequests:success ");
                 } else {
-                    log.debug("saveAllServiceRequests:success ");
+                    log.debug("saveAllServiceRequests:fail ");
                 }
 			}
 
@@ -269,17 +269,21 @@ public class ETLServiceImpl implements ETLService {
 //	            }
 
 	            // get QuestionnaireResponse
-	            String srString = "ServiceRequest/" + serviceRequest.getId();
-	            log.debug("convertToEtlRecords:search for QR.basedOn: " + srString);
+	            List<String> srStringList = new ArrayList<>();
+	            srStringList.add("ServiceRequest/" + serviceRequest.getIdElement().getIdPart());
+	            if (serviceRequest.hasBasedOn()) {
+	                srStringList.add(serviceRequest.getBasedOnFirstRep().getReference());
+	            }
+	            log.debug("convertToEtlRecords:search for QR.basedOn: " + StringUtils.join(srStringList, ','));
 	            Bundle bundle = localFhirClient.search()//
 	                    .forResource(QuestionnaireResponse.class)//
 	                    .returnBundle(Bundle.class)//
-	                    .where(QuestionnaireResponse.BASED_ON.hasAnyOfIds(srString))//
+	                    .where(QuestionnaireResponse.BASED_ON.hasAnyOfIds(srStringList))//
 	                    .execute();
 	            if (bundle.hasEntry()) {
 	                fhirQuestionnaireResponse = (QuestionnaireResponse) bundle.getEntryFirstRep().getResource();
 	            } else {
-	                log.error("QuestionnaireResponse with based on: " + srString + " is missing");
+	                log.error("QuestionnaireResponse with based on: " + StringUtils.join(srStringList, ',') + " are missing");
 	            }
 
 	            // get Organization
@@ -479,6 +483,13 @@ public class ETLServiceImpl implements ETLService {
 				if (identifier.getSystem().equalsIgnoreCase("http://openelis-global.org/pat_nationalId")) {
 					etlRecord.setIdentifier(identifier.getValue());
 				}
+				if (identifier.getSystem().equalsIgnoreCase("http://govmu.org")) {
+                    etlRecord.setIdentifier(identifier.getValue());
+                }
+				if (identifier.getSystem().equalsIgnoreCase("passport") && 
+				        StringUtils.isAllBlank(etlRecord.getIdentifier())) {
+                    etlRecord.setIdentifier(identifier.getValue());
+                }
 			}
 		}
 
