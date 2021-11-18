@@ -406,37 +406,39 @@ public class ETLServiceImpl implements ETLService {
         log.trace("putQuestionnaireResponseValuesIntoETLRecord");
         if (fhirQuestionnaireResponse.hasItem()) {
             for (QuestionnaireResponseItemComponent item : fhirQuestionnaireResponse.getItem()) {
-                switch (item.getText()) {
-                case "Reason for Visit":
-                    break;
-                case "Countries Vistied within 6 Months":
-                    List<String> countries = new LinkedList<>();
-                    for (QuestionnaireResponseItemAnswerComponent country : item.getAnswer()) {
-                        countries.add(country.getValue().toString());
-                    }
-                    etlRecord.setCountries_visited(String.join(",", countries));
-                    break;
-                case "Flight":
-                    etlRecord.setFlight(item.getAnswerFirstRep().getValue().toString());
-                    break;
-                case "Date Of Arrival":
-                    etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValue().toString());
-                    break;
-                case "Purpose of Visit":
-                    etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
-                    break;
-                case "Airline":
-                    etlRecord.setAirline(item.getAnswerFirstRep().getValue().toString());
-                    break;
-                case "Nationality":
-                    etlRecord.setNationality(item.getAnswerFirstRep().getValue().toString());
-                    break;
-                case "Seat":
-                    etlRecord.setSeat(item.getAnswerFirstRep().getValue().toString());
-                    break;
-                case "Address in MU":
-                    break;
+                if(item.hasAnswer()) {
+                    switch (item.getText()) {
+                    case "Reason for Visit":
+                        break;
+                    case "Countries Vistied within 6 Months":
+                        List<String> countries = new LinkedList<>();
+                        for (QuestionnaireResponseItemAnswerComponent country : item.getAnswer()) {
+                            countries.add(country.getValue().toString());
+                        }
+                        etlRecord.setCountries_visited(String.join(",", countries));
+                        break;
+                    case "Flight":
+                        etlRecord.setFlight(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case "Date Of Arrival":
+                        etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case "Purpose of Visit":
+                        etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case "Airline":
+                        etlRecord.setAirline(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case "Nationality":
+                        etlRecord.setNationality(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case "Seat":
+                        etlRecord.setSeat(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case "Address in MU":
+                        break;
 
+                    }
                 }
             }
         }
