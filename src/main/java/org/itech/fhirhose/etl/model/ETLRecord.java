@@ -52,6 +52,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String airline;
     private String nationality;
     private String seat;
+    private String health_office;
 
     public ETLRecord() {
     }
