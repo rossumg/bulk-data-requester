@@ -438,6 +438,15 @@ public class ETLServiceImpl implements ETLService {
                     case "Health Office":
                         etlRecord.setHealth_office(item.getAnswerFirstRep().getValue().toString());
                         break;    
+                    case "Mobile Phone":
+                        etlRecord.setMobile_phone(item.getAnswerFirstRep().getValue().toString());
+                        break;    
+                    case "Fixed Phone":
+                        etlRecord.setHome_phone(item.getAnswerFirstRep().getValue().toString());
+                        break;    
+                    case "Work Phone":
+                        etlRecord.setWork_phone(item.getAnswerFirstRep().getValue().toString());
+                        break;    
                     case "Address in MU":
                         break;
 

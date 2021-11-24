@@ -27,6 +27,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String last_name;
     private String home_phone;
     private String work_phone;
+    private String mobile_phone;
     private String sex;
     private Timestamp birthdate;
     private String address_street;
