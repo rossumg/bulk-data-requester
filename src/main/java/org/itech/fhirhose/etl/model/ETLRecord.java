@@ -56,6 +56,16 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String health_office;
     private String testKitId;
     private String originalServiceRequestId;
+    
+    private Boolean previous_infection;
+    private Boolean fever;
+    private Boolean sore_throat;
+    private Boolean joint_pain;
+    private Boolean cough;
+    private Boolean breathing_difficulty;
+    private Boolean rash;
+    private Boolean sense_of_smell_or_taste;
+    private Boolean contact_with_infected_individual;
 
     public ETLRecord() {
     }

@@ -448,6 +448,33 @@ public class ETLServiceImpl implements ETLService {
                         break;    
                     case "Address in MU":
                         break;
+                    case "Previous Infection":
+                        etlRecord.setPrevious_infection(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
+                    case "Fever":
+                        etlRecord.setFever(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
+                    case "Sore Throat":
+                        etlRecord.setSore_throat(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
+                    case "Joint Pain":
+                        etlRecord.setJoint_pain(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
+                    case "Cough":
+                        etlRecord.setCough(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
+                    case "Breathing Difficulty":
+                        etlRecord.setBreathing_difficulty(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
+                    case "Rash":
+                        etlRecord.setRash(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
+                    case "Sense of Smell or Taste":
+                        etlRecord.setSense_of_smell_or_taste(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
+                    case "Contact with Infected Individual":
+                        etlRecord.setContact_with_infected_individual(item.getAnswerFirstRep().getValueBooleanType().getValue());
+                        break;
 
                     }
                 }
