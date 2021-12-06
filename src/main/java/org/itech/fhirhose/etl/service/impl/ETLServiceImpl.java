@@ -406,10 +406,6 @@ public class ETLServiceImpl implements ETLService {
             for (QuestionnaireResponseItemComponent item : fhirQuestionnaireResponse.getItem()) {
                 if(item.hasLinkId()) {
                     switch (item.getLinkId()) {
-//                    case "Reason for Visit":
-                    case FhirConstants.PURPOSE_OF_VIST_LINK_ID:
-                        break;
-//                    case "Countries Vistied within 6 Months":
                     case FhirConstants.COUNTRIES_VISTED_LINK_ID:
                         List<String> countries = new LinkedList<>();
                         for (QuestionnaireResponseItemAnswerComponent country : item.getAnswer()) {
@@ -417,34 +413,34 @@ public class ETLServiceImpl implements ETLService {
                         }
                         etlRecord.setCountries_visited(String.join(",", countries));
                         break;
-                    case "Flight":
+                    case FhirConstants.FLIGHT_LINK_ID:
                         etlRecord.setFlight(item.getAnswerFirstRep().getValue().toString());
                         break;
-                    case "Date Of Arrival":
+                    case FhirConstants.DATE_OF_ARRIVAL_LINK_ID:
                         etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValue().toString());
                         break;
-                    case "Purpose of Visit":
+                    case FhirConstants.PURPOSE_OF_VIST_LINK_ID:
                         etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
                         break;
-                    case "Airline":
+                    case FhirConstants.AIRLINE_LINK_ID:
                         etlRecord.setAirline(item.getAnswerFirstRep().getValue().toString());
                         break;
-                    case "Nationality":
+                    case FhirConstants.NATIONALITY_LINK_ID:
                         etlRecord.setNationality(item.getAnswerFirstRep().getValue().toString());
                         break;
-                    case "Seat":
+                    case FhirConstants.SEAT_LINK_ID:
                         etlRecord.setSeat(item.getAnswerFirstRep().getValue().toString());
                         break;
-                    case "Health Office":
+                    case FhirConstants.HEALTH_OFFICE_LINK_ID:
                         etlRecord.setHealth_office(item.getAnswerFirstRep().getValue().toString());
                         break;    
-                    case "Mobile Phone":
+                    case FhirConstants.MOBILE_PHONE_LINK_ID:
                         etlRecord.setMobile_phone(item.getAnswerFirstRep().getValue().toString());
                         break;    
-                    case "Fixed Phone":
+                    case FhirConstants.FIXED_PHONE_LINK_ID:
                         etlRecord.setHome_phone(item.getAnswerFirstRep().getValue().toString());
                         break;    
-                    case "Work Phone":
+                    case FhirConstants.WORK_PHONE_LINK_ID:
                         etlRecord.setWork_phone(item.getAnswerFirstRep().getValue().toString());
                         break; 
                         
@@ -488,31 +484,31 @@ public class ETLServiceImpl implements ETLService {
                         etlRecord.setTemp_address_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
                         break;
                         
-                    case "Previous Infection":
+                    case FhirConstants.PREVIOUS_INFECTION_LINK_ID:
                         etlRecord.setPrevious_infection(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-                    case "Fever":
+                    case FhirConstants.FEVER_LINK_ID:
                         etlRecord.setFever(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-                    case "Sore Throat":
+                    case FhirConstants.SORE_THROAT_LINK_ID:
                         etlRecord.setSore_throat(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-                    case "Joint Pain":
+                    case FhirConstants.JOINT_PAIN_LINK_ID:
                         etlRecord.setJoint_pain(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-                    case "Cough":
+                    case FhirConstants.COUGH_LINK_ID:
                         etlRecord.setCough(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-                    case "Breathing Difficulty":
+                    case FhirConstants.BREATHING_LINK_ID:
                         etlRecord.setBreathing_difficulty(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-                    case "Rash":
+                    case FhirConstants.RASH_LINK_ID:
                         etlRecord.setRash(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-                    case "Sense of Smell or Taste":
+                    case FhirConstants.SENSE_OF_SMELL_LINK_ID:
                         etlRecord.setSense_of_smell_or_taste(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-                    case "Contact with Infected Individual":
+                    case FhirConstants.CONTACT_WITH_NFECTED_LINK_ID:
                         etlRecord.setContact_with_infected_individual(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
 
