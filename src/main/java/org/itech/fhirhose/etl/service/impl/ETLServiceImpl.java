@@ -404,7 +404,7 @@ public class ETLServiceImpl implements ETLService {
         log.trace("putQuestionnaireResponseValuesIntoETLRecord");
         if (fhirQuestionnaireResponse.hasItem()) {
             for (QuestionnaireResponseItemComponent item : fhirQuestionnaireResponse.getItem()) {
-                if(item.hasLinkId()) {
+                if(item.hasLinkId() && item.hasAnswer()) {
                     switch (item.getLinkId()) {
                     case FhirConstants.COUNTRIES_VISTED_LINK_ID:
                         List<String> countries = new LinkedList<>();
