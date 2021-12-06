@@ -8,11 +8,9 @@ import java.time.Period;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.validator.GenericValidator;
-import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleEntryComponent;
 import org.hl7.fhir.r4.model.CodeableConcept;
@@ -39,6 +37,7 @@ import org.hl7.fhir.r4.model.Type;
 import org.itech.fhirhose.etl.model.ETLRecord;
 import org.itech.fhirhose.etl.service.ETLRecordService;
 import org.itech.fhirhose.etl.service.ETLService;
+import org.itech.fhirhose.fhir.FhirConstants;
 import org.itech.fhirhose.fhir.FhirUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -405,11 +404,13 @@ public class ETLServiceImpl implements ETLService {
         log.trace("putQuestionnaireResponseValuesIntoETLRecord");
         if (fhirQuestionnaireResponse.hasItem()) {
             for (QuestionnaireResponseItemComponent item : fhirQuestionnaireResponse.getItem()) {
-                if(item.hasAnswer()) {
-                    switch (item.getText()) {
-                    case "Reason for Visit":
+                if(item.hasLinkId()) {
+                    switch (item.getLinkId()) {
+//                    case "Reason for Visit":
+                    case FhirConstants.PURPOSE_OF_VIST_LINK_ID:
                         break;
-                    case "Countries Vistied within 6 Months":
+//                    case "Countries Vistied within 6 Months":
+                    case FhirConstants.COUNTRIES_VISTED_LINK_ID:
                         List<String> countries = new LinkedList<>();
                         for (QuestionnaireResponseItemAnswerComponent country : item.getAnswer()) {
                             countries.add(country.getValue().toString());
@@ -445,9 +446,48 @@ public class ETLServiceImpl implements ETLService {
                         break;    
                     case "Work Phone":
                         etlRecord.setWork_phone(item.getAnswerFirstRep().getValue().toString());
-                        break;    
-                    case "Address in MU":
+                        break; 
+                        
+                    case FhirConstants.PERM_ADDRESS_NUMBER_AND_STREET_LINK_ID:
+                        etlRecord.setAddress_street(item.getAnswerFirstRep().getValue().toString());
                         break;
+                    case FhirConstants.PERM_ADDRESS_APARTMENT_NUMBER_LINK_ID:
+                        etlRecord.setAddress_apartment_number(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PERM_ADDRESS_CITY_LINK_ID:
+                        etlRecord.setAddress_city(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PERM_ADDRESS_STATE_PROVINCE_LINK_ID:
+                        etlRecord.setAddress_state_province(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PERM_ADDRESS_COUNTRY_LINK_ID:
+                        etlRecord.setAddress_country(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PERM_ADDRESS_ZIP_POSTAL_CODE_LINK_ID:
+                        etlRecord.setAddress_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.TEMP_ADDRESS_HOTEL_NAME_LINK_ID:
+                        etlRecord.setTemp_address_hotel_name(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.TEMP_ADDRESS_NUMBER_AND_STREET_LINK_ID:
+                        etlRecord.setTemp_address_number_and_street(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.TEMP_ADDRESS_APARTMENT_NUMBER_LINK_ID:
+                        etlRecord.setTemp_address_apartment_number(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.TEMP_ADDRESS_CITY_LINK_ID:
+                        etlRecord.setTemp_address_city(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.TEMP_ADDRESS_STATE_PROVINCE_LINK_ID:
+                        etlRecord.setTemp_address_state_province(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.TEMP_ADDRESS_COUNTRY_LINK_ID:
+                        etlRecord.setTemp_address_country(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.TEMP_ADDRESS_ZIP_POSTAL_CODE_LINK_ID:
+                        etlRecord.setTemp_address_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                        
                     case "Previous Infection":
                         etlRecord.setPrevious_infection(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
@@ -551,13 +591,14 @@ public class ETLServiceImpl implements ETLService {
 			}
 		}
 
-		if (fhirPatient.hasAddress()) {
-			Address address = fhirPatient.getAddressFirstRep();
-			etlRecord.setAddress_street(StringUtils
-					.join(address.getLine().stream().map(e -> e.asStringValue()).collect(Collectors.toList()), ", "));
-			etlRecord.setAddress_city(address.getCity());
-			etlRecord.setAddress_country(address.getCountry());
-		}
+//		moved to questionniare response
+//		if (fhirPatient.hasAddress()) {
+//			Address address = fhirPatient.getAddressFirstRep();
+//			etlRecord.setAddress_street(StringUtils
+//					.join(address.getLine().stream().map(e -> e.asStringValue()).collect(Collectors.toList()), ", "));
+//			etlRecord.setAddress_city(address.getCity());
+//			etlRecord.setAddress_country(address.getCountry());
+//		}
 
 		if (fhirPatient.hasTelecom()) {
 			for (ContactPoint contact : fhirPatient.getTelecom()) {

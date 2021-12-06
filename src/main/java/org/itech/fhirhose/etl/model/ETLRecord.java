@@ -30,9 +30,22 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String mobile_phone;
     private String sex;
     private Timestamp birthdate;
+    
+    private String address_apartment_number;
     private String address_street;
     private String address_city;
+    private String address_state_province;
     private String address_country;
+    private String address_zip_postal_code;
+    
+    private String temp_address_hotel_name;
+    private String temp_address_apartment_number;
+    private String temp_address_number_and_street;
+    private String temp_address_city;
+    private String temp_address_state_province;
+    private String temp_address_country;
+    private String temp_address_zip_postal_code;
+    
     private Integer age_years;
     private Integer age_months;
     private Integer age_weeks;
