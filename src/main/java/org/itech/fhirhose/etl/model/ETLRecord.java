@@ -79,6 +79,14 @@ public class ETLRecord extends AuditableEntity<Long> {
     private Boolean rash;
     private Boolean sense_of_smell_or_taste;
     private Boolean contact_with_infected_individual;
+    
+    private String country_of_birth;
+    private String passport_number;
+    private String passport_expiry;
+    private String passport_country_of_issue;
+    private String port_of_embarkation;
+    private String profession;
+    private String length_of_stay;
 
     public ETLRecord() {
     }

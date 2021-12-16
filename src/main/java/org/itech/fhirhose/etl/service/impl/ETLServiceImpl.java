@@ -443,7 +443,6 @@ public class ETLServiceImpl implements ETLService {
                     case FhirConstants.WORK_PHONE_LINK_ID:
                         etlRecord.setWork_phone(item.getAnswerFirstRep().getValue().toString());
                         break; 
-                        
                     case FhirConstants.PERM_ADDRESS_NUMBER_AND_STREET_LINK_ID:
                         etlRecord.setAddress_street(item.getAnswerFirstRep().getValue().toString());
                         break;
@@ -483,7 +482,6 @@ public class ETLServiceImpl implements ETLService {
                     case FhirConstants.TEMP_ADDRESS_ZIP_POSTAL_CODE_LINK_ID:
                         etlRecord.setTemp_address_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
                         break;
-                        
                     case FhirConstants.PREVIOUS_INFECTION_LINK_ID:
                         etlRecord.setPrevious_infection(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
@@ -511,7 +509,27 @@ public class ETLServiceImpl implements ETLService {
                     case FhirConstants.CONTACT_WITH_NFECTED_LINK_ID:
                         etlRecord.setContact_with_infected_individual(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
-
+                    case FhirConstants.COUNTRY_OF_BIRTH_LINK_ID:
+                        etlRecord.setCountry_of_birth(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PASSPORT_COUNTRY_LINK_ID:
+                        etlRecord.setPassport_country_of_issue(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PASSPORT_NUMBER_LINK_ID:
+                        etlRecord.setPassport_number(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PASSPORT_EXPIRY_DATE_LINK_ID:
+                        etlRecord.setPassport_expiry(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PORT_OF_EMBARKATION_LINK_ID:
+                        etlRecord.setPort_of_embarkation(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.PROFESSION_LINK_ID:
+                        etlRecord.setProfession(item.getAnswerFirstRep().getValue().toString());
+                        break;
+                    case FhirConstants.LENGTH_OF_STAY_LINK_ID:
+                        etlRecord.setLength_of_stay(item.getAnswerFirstRep().getValue().toString());
+                        break;
                     }
                 }
             }
