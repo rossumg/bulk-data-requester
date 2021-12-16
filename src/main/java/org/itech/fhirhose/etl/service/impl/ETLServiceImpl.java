@@ -417,7 +417,7 @@ public class ETLServiceImpl implements ETLService {
                         etlRecord.setFlight(item.getAnswerFirstRep().getValue().toString());
                         break;
                     case FhirConstants.DATE_OF_ARRIVAL_LINK_ID:
-                        etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValueDateType().toString());
+                        etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValueDateType().getValueAsString());
                         break;
                     case FhirConstants.PURPOSE_OF_VIST_LINK_ID:
                         etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
@@ -519,7 +519,7 @@ public class ETLServiceImpl implements ETLService {
                         etlRecord.setPassport_number(item.getAnswerFirstRep().getValue().toString());
                         break;
                     case FhirConstants.PASSPORT_EXPIRY_DATE_LINK_ID:
-                        etlRecord.setPassport_expiry(item.getAnswerFirstRep().getValueDateType().toString());
+                        etlRecord.setPassport_expiry(item.getAnswerFirstRep().getValueDateType().getValueAsString());
                         break;
                     case FhirConstants.PORT_OF_EMBARKATION_LINK_ID:
                         etlRecord.setPort_of_embarkation(item.getAnswerFirstRep().getValue().toString());
@@ -528,7 +528,7 @@ public class ETLServiceImpl implements ETLService {
                         etlRecord.setProfession(item.getAnswerFirstRep().getValue().toString());
                         break;
                     case FhirConstants.LENGTH_OF_STAY_LINK_ID:
-                        etlRecord.setLength_of_stay(item.getAnswerFirstRep().getValueIntegerType().toString());
+                        etlRecord.setLength_of_stay(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
                         break;
                     }
                 }
