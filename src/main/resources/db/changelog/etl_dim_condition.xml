@@ -234,5 +234,22 @@ case
 from datamart.etlrecord);
                 </sql>
 	</changeSet>
+	
+		<changeSet author="ctsteele" id="25">
+	        <preConditions onFail="MARK_RAN">
+	        <not>
+            	<columnExists tableName="datamart.etlrecord" columnName="temp_address_local_phone"/>
+            </not>
+            </preConditions>
+            <sql>
+            ALTER TABLE datamart.etlrecord
+			ADD COLUMN temp_address_local_phone character varying(255) COLLATE pg_catalog."default",
+			ADD COLUMN emergency_contact_last_name character varying(255) COLLATE pg_catalog."default",
+			ADD COLUMN emergency_contact_first_name character varying(255) COLLATE pg_catalog."default",
+			ADD COLUMN emergency_contact_address character varying(255) COLLATE pg_catalog."default",
+			ADD COLUMN emergency_contact_country character varying(255) COLLATE pg_catalog."default",
+			ADD COLUMN emergency_contact_mobile_phone character varying(255) COLLATE pg_catalog."default";
+		</sql>
+	</changeSet>
 
 </databaseChangeLog>
