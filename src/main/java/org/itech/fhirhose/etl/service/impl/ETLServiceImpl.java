@@ -399,163 +399,163 @@ public class ETLServiceImpl implements ETLService {
 //		}
 	}
 
-    private void putQuestionnaireResponseValuesIntoETLRecord(ETLRecord etlRecord,
-            QuestionnaireResponse fhirQuestionnaireResponse) {
-        log.trace("putQuestionnaireResponseValuesIntoETLRecord");
-        if (fhirQuestionnaireResponse.hasItem()) {
-            for (QuestionnaireResponseItemComponent item : fhirQuestionnaireResponse.getItem()) {
-                if(item.hasLinkId() && item.hasAnswer()) {
-                    switch (item.getLinkId()) {
-                    case FhirConstants.COUNTRIES_VISTED_LINK_ID:
-                        List<String> countries = new LinkedList<>();
-                        for (QuestionnaireResponseItemAnswerComponent country : item.getAnswer()) {
-                            countries.add(country.getValue().toString());
-                        }
-                        etlRecord.setCountries_visited(String.join(",", countries));
-                        break;
-                    case FhirConstants.FLIGHT_LINK_ID:
-                        etlRecord.setFlight(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.DATE_OF_ARRIVAL_LINK_ID:
-                        etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValueDateType().getValueAsString());
-                        break;
-                    case FhirConstants.ARRIVAL_TIME_LINK_ID:
-                        etlRecord.setTime_of_arrival(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PURPOSE_OF_VIST_LINK_ID:
-                        etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.AIRLINE_LINK_ID:
-                        etlRecord.setAirline(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.NATIONALITY_LINK_ID:
-                        etlRecord.setNationality(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.SEAT_LINK_ID:
-                        etlRecord.setSeat(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.HEALTH_OFFICE_LINK_ID:
-                        etlRecord.setHealth_office(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.MOBILE_PHONE_LINK_ID:
-                        etlRecord.setMobile_phone(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.FIXED_PHONE_LINK_ID:
-                        etlRecord.setHome_phone(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.WORK_PHONE_LINK_ID:
-                        etlRecord.setWork_phone(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PERM_ADDRESS_NUMBER_AND_STREET_LINK_ID:
-                        etlRecord.setAddress_street(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PERM_ADDRESS_APARTMENT_NUMBER_LINK_ID:
-                        etlRecord.setAddress_apartment_number(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PERM_ADDRESS_CITY_LINK_ID:
-                        etlRecord.setAddress_city(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PERM_ADDRESS_STATE_PROVINCE_LINK_ID:
-                        etlRecord.setAddress_state_province(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PERM_ADDRESS_COUNTRY_LINK_ID:
-                        etlRecord.setAddress_country(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PERM_ADDRESS_ZIP_POSTAL_CODE_LINK_ID:
-                        etlRecord.setAddress_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.TEMP_ADDRESS_HOTEL_NAME_LINK_ID:
-                        etlRecord.setTemp_address_hotel_name(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.TEMP_ADDRESS_NUMBER_AND_STREET_LINK_ID:
-                        etlRecord.setTemp_address_number_and_street(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.TEMP_ADDRESS_APARTMENT_NUMBER_LINK_ID:
-                        etlRecord.setTemp_address_apartment_number(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.TEMP_ADDRESS_CITY_LINK_ID:
-                        etlRecord.setTemp_address_city(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.TEMP_ADDRESS_STATE_PROVINCE_LINK_ID:
-                        etlRecord.setTemp_address_state_province(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.TEMP_ADDRESS_COUNTRY_LINK_ID:
-                        etlRecord.setTemp_address_country(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.TEMP_ADDRESS_ZIP_POSTAL_CODE_LINK_ID:
-                        etlRecord.setTemp_address_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
-                        break;
-					case FhirConstants.TEMP_ADDRESS_LOCAL_PHONE_LINK_ID:
-						etlRecord.setTemp_address_local_phone(item.getAnswerFirstRep().getValue().toString());
-						break;
-                    case FhirConstants.PREVIOUS_INFECTION_LINK_ID:
-                        etlRecord.setPrevious_infection(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.FEVER_LINK_ID:
-                        etlRecord.setFever(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.SORE_THROAT_LINK_ID:
-                        etlRecord.setSore_throat(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.JOINT_PAIN_LINK_ID:
-                        etlRecord.setJoint_pain(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.COUGH_LINK_ID:
-                        etlRecord.setCough(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.BREATHING_LINK_ID:
-                        etlRecord.setBreathing_difficulty(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.RASH_LINK_ID:
-                        etlRecord.setRash(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.SENSE_OF_SMELL_LINK_ID:
-                        etlRecord.setSense_of_smell_or_taste(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.CONTACT_WITH_NFECTED_LINK_ID:
-                        etlRecord.setContact_with_infected_individual(item.getAnswerFirstRep().getValueBooleanType().getValue());
-                        break;
-                    case FhirConstants.COUNTRY_OF_BIRTH_LINK_ID:
-                        etlRecord.setCountry_of_birth(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PASSPORT_COUNTRY_LINK_ID:
-                        etlRecord.setPassport_country_of_issue(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PASSPORT_NUMBER_LINK_ID:
-                        etlRecord.setPassport_number(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PASSPORT_EXPIRY_DATE_LINK_ID:
-                        etlRecord.setPassport_expiry(item.getAnswerFirstRep().getValueDateType().getValueAsString());
-                        break;
-                    case FhirConstants.PORT_OF_EMBARKATION_LINK_ID:
-                        etlRecord.setPort_of_embarkation(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.PROFESSION_LINK_ID:
-                        etlRecord.setProfession(item.getAnswerFirstRep().getValue().toString());
-                        break;
-                    case FhirConstants.LENGTH_OF_STAY_LINK_ID:
-                        etlRecord.setLength_of_stay(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
-                        break;
-					case FhirConstants.EMERG_CONTACT_ADDRES_LINK_ID:
-						etlRecord.setEmergency_contact_address(item.getAnswerFirstRep().getValue().toString());
-						break;
-					case FhirConstants.EMERG_CONTACT_COUNTRY_LINK_ID:
-						etlRecord.setEmergency_contact_country(item.getAnswerFirstRep().getValue().toString());
-						break;
-					case FhirConstants.EMERG_CONTACT_FIRST_NAME_LINK_ID:
-						etlRecord.setEmergency_contact_first_name(item.getAnswerFirstRep().getValue().toString());
-						break;
-					case FhirConstants.EMERG_CONTACT_LAST_NAME_LINK_ID:
-						etlRecord.setEmergency_contact_last_name(item.getAnswerFirstRep().getValue().toString());
-						break;
-					case FhirConstants.EMERG_CONTACT_MOBILE_PHONE_LINK_ID:
-						etlRecord.setEmergency_contact_mobile_phone(item.getAnswerFirstRep().getValue().toString());
-						break;
-                    }
-                }
-            }
-        }
-    }
+	private void putQuestionnaireResponseValuesIntoETLRecord(ETLRecord etlRecord,
+	        QuestionnaireResponse fhirQuestionnaireResponse) {
+	    log.trace("putQuestionnaireResponseValuesIntoETLRecord");
+	    if (fhirQuestionnaireResponse.hasItem()) {
+	        for (QuestionnaireResponseItemComponent item : fhirQuestionnaireResponse.getItem()) {
+	            if(item.hasLinkId() && item.hasAnswer()) {
+	                switch (item.getLinkId()) {
+	                case FhirConstants.COUNTRIES_VISTED_LINK_ID:
+	                    List<String> countries = new LinkedList<>();
+	                    for (QuestionnaireResponseItemAnswerComponent country : item.getAnswer()) {
+	                        countries.add(country.getValue().toString());
+	                    }
+	                    etlRecord.setCountries_visited(String.join(",", countries));
+	                    break;
+	                case FhirConstants.FLIGHT_LINK_ID:
+	                    etlRecord.setFlight(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.DATE_OF_ARRIVAL_LINK_ID:
+	                    etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValueDateType().getValueAsString());
+	                    break;
+	                case FhirConstants.ARRIVAL_TIME_LINK_ID:
+	                    etlRecord.setTime_of_arrival(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PURPOSE_OF_VIST_LINK_ID:
+	                    etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.AIRLINE_LINK_ID:
+	                    etlRecord.setAirline(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.NATIONALITY_LINK_ID:
+	                    etlRecord.setNationality(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.SEAT_LINK_ID:
+	                    etlRecord.setSeat(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.HEALTH_OFFICE_LINK_ID:
+	                    etlRecord.setHealth_office(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.MOBILE_PHONE_LINK_ID:
+	                    etlRecord.setMobile_phone(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.FIXED_PHONE_LINK_ID:
+	                    etlRecord.setHome_phone(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.WORK_PHONE_LINK_ID:
+	                    etlRecord.setWork_phone(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PERM_ADDRESS_NUMBER_AND_STREET_LINK_ID:
+	                    etlRecord.setAddress_street(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PERM_ADDRESS_APARTMENT_NUMBER_LINK_ID:
+	                    etlRecord.setAddress_apartment_number(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PERM_ADDRESS_CITY_LINK_ID:
+	                    etlRecord.setAddress_city(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PERM_ADDRESS_STATE_PROVINCE_LINK_ID:
+	                    etlRecord.setAddress_state_province(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PERM_ADDRESS_COUNTRY_LINK_ID:
+	                    etlRecord.setAddress_country(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PERM_ADDRESS_ZIP_POSTAL_CODE_LINK_ID:
+	                    etlRecord.setAddress_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.TEMP_ADDRESS_HOTEL_NAME_LINK_ID:
+	                    etlRecord.setTemp_address_hotel_name(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.TEMP_ADDRESS_NUMBER_AND_STREET_LINK_ID:
+	                    etlRecord.setTemp_address_number_and_street(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.TEMP_ADDRESS_APARTMENT_NUMBER_LINK_ID:
+	                    etlRecord.setTemp_address_apartment_number(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.TEMP_ADDRESS_CITY_LINK_ID:
+	                    etlRecord.setTemp_address_city(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.TEMP_ADDRESS_STATE_PROVINCE_LINK_ID:
+	                    etlRecord.setTemp_address_state_province(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.TEMP_ADDRESS_COUNTRY_LINK_ID:
+	                    etlRecord.setTemp_address_country(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.TEMP_ADDRESS_ZIP_POSTAL_CODE_LINK_ID:
+	                    etlRecord.setTemp_address_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.TEMP_ADDRESS_LOCAL_PHONE_LINK_ID:
+	                    etlRecord.setTemp_address_local_phone(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PREVIOUS_INFECTION_LINK_ID:
+	                    etlRecord.setPrevious_infection(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.FEVER_LINK_ID:
+	                    etlRecord.setFever(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.SORE_THROAT_LINK_ID:
+	                    etlRecord.setSore_throat(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.JOINT_PAIN_LINK_ID:
+	                    etlRecord.setJoint_pain(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.COUGH_LINK_ID:
+	                    etlRecord.setCough(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.BREATHING_LINK_ID:
+	                    etlRecord.setBreathing_difficulty(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.RASH_LINK_ID:
+	                    etlRecord.setRash(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.SENSE_OF_SMELL_LINK_ID:
+	                    etlRecord.setSense_of_smell_or_taste(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.CONTACT_WITH_NFECTED_LINK_ID:
+	                    etlRecord.setContact_with_infected_individual(item.getAnswerFirstRep().getValueBooleanType().getValue());
+	                    break;
+	                case FhirConstants.COUNTRY_OF_BIRTH_LINK_ID:
+	                    etlRecord.setCountry_of_birth(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PASSPORT_COUNTRY_LINK_ID:
+	                    etlRecord.setPassport_country_of_issue(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PASSPORT_NUMBER_LINK_ID:
+	                    etlRecord.setPassport_number(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PASSPORT_EXPIRY_DATE_LINK_ID:
+	                    etlRecord.setPassport_expiry(item.getAnswerFirstRep().getValueDateType().getValueAsString());
+	                    break;
+	                case FhirConstants.PORT_OF_EMBARKATION_LINK_ID:
+	                    etlRecord.setPort_of_embarkation(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.PROFESSION_LINK_ID:
+	                    etlRecord.setProfession(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.LENGTH_OF_STAY_LINK_ID:
+	                    etlRecord.setLength_of_stay(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
+	                    break;
+	                case FhirConstants.EMERG_CONTACT_ADDRES_LINK_ID:
+	                    etlRecord.setEmergency_contact_address(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.EMERG_CONTACT_COUNTRY_LINK_ID:
+	                    etlRecord.setEmergency_contact_country(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.EMERG_CONTACT_FIRST_NAME_LINK_ID:
+	                    etlRecord.setEmergency_contact_first_name(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.EMERG_CONTACT_LAST_NAME_LINK_ID:
+	                    etlRecord.setEmergency_contact_last_name(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                case FhirConstants.EMERG_CONTACT_MOBILE_PHONE_LINK_ID:
+	                    etlRecord.setEmergency_contact_mobile_phone(item.getAnswerFirstRep().getValue().toString());
+	                    break;
+	                }
+	            }
+	        }
+	    }
+	}
 
 	private void putSpecimenValuesIntoETLRecord(ETLRecord etlRecord, Specimen fhirSpecimen) {
 		log.trace("putSpecimenValuesIntoETLRecord");
