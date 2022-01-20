@@ -30,14 +30,14 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String mobile_phone;
     private String sex;
     private Timestamp birthdate;
-    
+
     private String address_apartment_number;
     private String address_street;
     private String address_city;
     private String address_state_province;
     private String address_country;
     private String address_zip_postal_code;
-    
+
     private String temp_address_hotel_name;
     private String temp_address_apartment_number;
     private String temp_address_number_and_street;
@@ -45,7 +45,8 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String temp_address_state_province;
     private String temp_address_country;
     private String temp_address_zip_postal_code;
-    
+	private String temp_address_local_phone;
+
     private Integer age_years;
     private Integer age_months;
     private Integer age_weeks;
@@ -58,7 +59,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String order_status;
     private String test;
     private String result;
-    
+
     private String purpose_of_visit;
     private String countries_visited;
     private String flight;
@@ -70,7 +71,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String health_office;
     private String testKitId;
     private String originalServiceRequestId;
-    
+
     private Boolean previous_infection;
     private Boolean fever;
     private Boolean sore_throat;
@@ -80,7 +81,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private Boolean rash;
     private Boolean sense_of_smell_or_taste;
     private Boolean contact_with_infected_individual;
-    
+
     private String country_of_birth;
     private String passport_number;
     private String passport_expiry;
@@ -94,6 +95,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String emergency_contact_address;
     private String emergency_contact_country;
     private String emergency_contact_mobile_phone;
+
 
     public ETLRecord() {
     }

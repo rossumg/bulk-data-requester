@@ -51,7 +51,7 @@ public class ETLServiceImpl implements ETLService {
 
 	private ETLRecordService etlRecordService;
 	private FhirUtil fhirUtil;
-	
+
 	@Value("${org.itech.locator.form.fhir.system.test-kit:https://host.openelis.org/locator-form/test-kit}")
 	private String testKitIdSystem;
 
@@ -80,18 +80,18 @@ public class ETLServiceImpl implements ETLService {
 				log.debug("observations:size: " + observations.size());
 				List<ETLRecord> etlObservationRecordList = convertObservationsToEtlRecords(observations);
 				log.debug("etlObservationRecordList: " + etlObservationRecordList.size());
-				
+
 				log.debug("serviceRequests: " + serviceRequests.size());
                 List<ETLRecord> etlServiceRequestRecordList = convertServiceRequestsToEtlRecords(serviceRequests);
                 log.debug("etlServiceRequestRecordList: " + etlServiceRequestRecordList.size());
-				
+
 				// add records to data mart
 				if (etlRecordService.saveAll(etlObservationRecordList)) {
 					log.debug("saveAllObservations:success ");
 				} else {
 					log.debug("saveAllObservations:fail ");
 				}
-				
+
                 if (etlRecordService.saveAll(etlServiceRequestRecordList)) {
                     log.debug("saveAllServiceRequests:success ");
                 } else {
@@ -156,7 +156,7 @@ public class ETLServiceImpl implements ETLService {
 			    } else {
                     log.error("QuestionnaireResponse with based on: " + srString + " is missing");
                 }
-				
+
                 // get Organization
                 if (hasReference(fhirServiceRequest.getLocationReferenceFirstRep())) {
 					String oString = fhirServiceRequest.getLocationReferenceFirstRep().getReference();
@@ -323,10 +323,10 @@ public class ETLServiceImpl implements ETLService {
 	                        + " is missing a subject reference");
 	            }
 
-	            // get Specimen 
+	            // get Specimen
 //	            if (hasReference(fhirObservation.getSpecimen())) {
 //	            if (true) {
-//	               
+//
 //	                fhirSpecimen = localFhirClient.search()//
 //	                        .forResource(Specimen.class)//
 //	                        .where(Specimen.ACCESSION.exactly().code(serviceRequest.getRequisition().getValue())//
@@ -375,7 +375,7 @@ public class ETLServiceImpl implements ETLService {
 		putPractitionerValuesIntoETLRecord(etlRecord, fhirPractitioner);
 		return etlRecord;
 	}
-	
+
 	   private ETLRecord convertoToServiceRequestETLRecord(Patient fhirPatient,
 	            ServiceRequest fhirServiceRequest, QuestionnaireResponse fhirQuestionnaireResponse, Organization fhirOrganization, Practitioner fhirPractitioner,
 	            Specimen fhirSpecimen) {
@@ -398,7 +398,7 @@ public class ETLServiceImpl implements ETLService {
 //					+ fhirPractitioner.getNameFirstRep().getFamily());
 //		}
 	}
-	
+
     private void putQuestionnaireResponseValuesIntoETLRecord(ETLRecord etlRecord,
             QuestionnaireResponse fhirQuestionnaireResponse) {
         log.trace("putQuestionnaireResponseValuesIntoETLRecord");
@@ -436,16 +436,16 @@ public class ETLServiceImpl implements ETLService {
                         break;
                     case FhirConstants.HEALTH_OFFICE_LINK_ID:
                         etlRecord.setHealth_office(item.getAnswerFirstRep().getValue().toString());
-                        break;    
+                        break;
                     case FhirConstants.MOBILE_PHONE_LINK_ID:
                         etlRecord.setMobile_phone(item.getAnswerFirstRep().getValue().toString());
-                        break;    
+                        break;
                     case FhirConstants.FIXED_PHONE_LINK_ID:
                         etlRecord.setHome_phone(item.getAnswerFirstRep().getValue().toString());
-                        break;    
+                        break;
                     case FhirConstants.WORK_PHONE_LINK_ID:
                         etlRecord.setWork_phone(item.getAnswerFirstRep().getValue().toString());
-                        break; 
+                        break;
                     case FhirConstants.PERM_ADDRESS_NUMBER_AND_STREET_LINK_ID:
                         etlRecord.setAddress_street(item.getAnswerFirstRep().getValue().toString());
                         break;
@@ -485,6 +485,9 @@ public class ETLServiceImpl implements ETLService {
                     case FhirConstants.TEMP_ADDRESS_ZIP_POSTAL_CODE_LINK_ID:
                         etlRecord.setTemp_address_zip_postal_code(item.getAnswerFirstRep().getValue().toString());
                         break;
+					case FhirConstants.TEMP_ADDRESS_LOCAL_PHONE_LINK_ID:
+						etlRecord.setTemp_address_local_phone(item.getAnswerFirstRep().getValue().toString());
+						break;
                     case FhirConstants.PREVIOUS_INFECTION_LINK_ID:
                         etlRecord.setPrevious_infection(item.getAnswerFirstRep().getValueBooleanType().getValue());
                         break;
@@ -533,22 +536,21 @@ public class ETLServiceImpl implements ETLService {
                     case FhirConstants.LENGTH_OF_STAY_LINK_ID:
                         etlRecord.setLength_of_stay(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
                         break;
-                    case FhirConstants.EMERG_CONTACT_LAST_NAME_LINK_ID:
-                        etlRecord.setEmergency_contact_last_name(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
-                        break;
-                    case FhirConstants.EMERG_CONTACT_FIRST_NAME_LINK_ID:
-                        etlRecord.setEmergency_contact_first_name(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
-                        break;
-                    case FhirConstants.EMERG_CONTACT_ADDRES_LINK_ID:
-                        etlRecord.setEmergency_contact_address(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
-                        break;
-                    case FhirConstants.EMERG_CONTACT_COUNTRY_LINK_ID:
-                        etlRecord.setEmergency_contact_country(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
-                        break;
-                    case FhirConstants.EMERG_CONTACT_MOBILE_PHONE_LINK_ID:
-                        etlRecord.setEmergency_contact_mobile_phone(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
-                        break;
-                        
+					case FhirConstants.EMERG_CONTACT_ADDRES_LINK_ID:
+						etlRecord.setEmergency_contact_address(item.getAnswerFirstRep().getValue().toString());
+						break;
+					case FhirConstants.EMERG_CONTACT_COUNTRY_LINK_ID:
+						etlRecord.setEmergency_contact_country(item.getAnswerFirstRep().getValue().toString());
+						break;
+					case FhirConstants.EMERG_CONTACT_FIRST_NAME_LINK_ID:
+						etlRecord.setEmergency_contact_first_name(item.getAnswerFirstRep().getValue().toString());
+						break;
+					case FhirConstants.EMERG_CONTACT_LAST_NAME_LINK_ID:
+						etlRecord.setEmergency_contact_last_name(item.getAnswerFirstRep().getValue().toString());
+						break;
+					case FhirConstants.EMERG_CONTACT_MOBILE_PHONE_LINK_ID:
+						etlRecord.setEmergency_contact_mobile_phone(item.getAnswerFirstRep().getValue().toString());
+						break;
                     }
                 }
             }
@@ -599,7 +601,7 @@ public class ETLServiceImpl implements ETLService {
 				if (identifier.getSystem().equalsIgnoreCase("http://govmu.org")) {
                     etlRecord.setIdentifier(identifier.getValue());
                 }
-				if (identifier.getSystem().equalsIgnoreCase("passport") && 
+				if (identifier.getSystem().equalsIgnoreCase("passport") &&
 				        StringUtils.isAllBlank(etlRecord.getIdentifier())) {
                     etlRecord.setIdentifier(identifier.getValue());
                 }
@@ -677,7 +679,7 @@ public class ETLServiceImpl implements ETLService {
 		if (fhirServiceRequest.hasAuthoredOn()) {
 			etlRecord.setDate_entered(new Timestamp(fhirServiceRequest.getAuthoredOn().getTime()));
 		}
-		
+
 		if (StringUtils.isAllBlank(etlRecord.getExternalId())) {
 		    etlRecord.setExternalId("ServiceRequest/" + fhirServiceRequest.getIdElement().getIdPart());
 		}
