@@ -63,6 +63,7 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String countries_visited;
     private String flight;
     private String date_of_arrival;
+    private String time_of_arrival;
     private String airline;
     private String nationality;
     private String seat;
@@ -87,6 +88,12 @@ public class ETLRecord extends AuditableEntity<Long> {
     private String port_of_embarkation;
     private String profession;
     private String length_of_stay;
+    
+    private String emergency_contact_last_name;
+    private String emergency_contact_first_name;
+    private String emergency_contact_address;
+    private String emergency_contact_country;
+    private String emergency_contact_mobile_phone;
 
     public ETLRecord() {
     }

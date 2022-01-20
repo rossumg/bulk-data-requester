@@ -419,6 +419,9 @@ public class ETLServiceImpl implements ETLService {
                     case FhirConstants.DATE_OF_ARRIVAL_LINK_ID:
                         etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValueDateType().getValueAsString());
                         break;
+                    case FhirConstants.ARRIVAL_TIME_LINK_ID:
+                        etlRecord.setTime_of_arrival(item.getAnswerFirstRep().getValue().toString());
+                        break;
                     case FhirConstants.PURPOSE_OF_VIST_LINK_ID:
                         etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
                         break;
@@ -530,6 +533,22 @@ public class ETLServiceImpl implements ETLService {
                     case FhirConstants.LENGTH_OF_STAY_LINK_ID:
                         etlRecord.setLength_of_stay(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
                         break;
+                    case FhirConstants.EMERG_CONTACT_LAST_NAME_LINK_ID:
+                        etlRecord.setEmergency_contact_last_name(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
+                        break;
+                    case FhirConstants.EMERG_CONTACT_FIRST_NAME_LINK_ID:
+                        etlRecord.setEmergency_contact_first_name(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
+                        break;
+                    case FhirConstants.EMERG_CONTACT_ADDRES_LINK_ID:
+                        etlRecord.setEmergency_contact_address(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
+                        break;
+                    case FhirConstants.EMERG_CONTACT_COUNTRY_LINK_ID:
+                        etlRecord.setEmergency_contact_country(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
+                        break;
+                    case FhirConstants.EMERG_CONTACT_MOBILE_PHONE_LINK_ID:
+                        etlRecord.setEmergency_contact_mobile_phone(item.getAnswerFirstRep().getValueIntegerType().getValueAsString());
+                        break;
+                        
                     }
                 }
             }
