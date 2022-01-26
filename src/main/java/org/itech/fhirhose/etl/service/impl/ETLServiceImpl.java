@@ -420,8 +420,8 @@ public class ETLServiceImpl implements ETLService {
 	                    etlRecord.setDate_of_arrival(item.getAnswerFirstRep().getValueDateType().getValueAsString());
 	                    break;
 	                case FhirConstants.ARRIVAL_TIME_LINK_ID:
-	                    etlRecord.setTime_of_arrival(item.getAnswerFirstRep().getValue().toString());
-	                    break;
+                        etlRecord.setTime_of_arrival(item.getAnswerFirstRep().getValueTimeType().getValueAsString());
+                        break;
 	                case FhirConstants.PURPOSE_OF_VIST_LINK_ID:
 	                    etlRecord.setPurpose_of_visit(item.getAnswerFirstRep().getValue().toString());
 	                    break;
