@@ -9,7 +9,7 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 scriptDir="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 
-if [ $(curl --fail --silent -k https://fhir-hose.openelis.org:8080/actuator/health | grep "UP" ]; then 
+if [ curl --fail --silent -k https://fhir-hose.openelis.org:8080/actuator/health | grep "UP" ]; then 
 	exit 0;
 else
 	exit 1;
