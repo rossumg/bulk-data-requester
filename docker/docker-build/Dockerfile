@@ -7,7 +7,8 @@ RUN mvn clean install -DskipTests
 FROM alpine:3.14
 RUN apk update
 RUN apk --no-cache add openjdk11
-RUN apk add --no-cache bash
+RUN apk --no-cache add bash
+RUN apk --no-cache add curl
 
 #RUN addgroup -S spring && adduser -S spring -G spring
 #USER spring:spring

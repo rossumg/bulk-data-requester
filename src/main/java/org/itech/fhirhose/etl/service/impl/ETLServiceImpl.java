@@ -285,42 +285,54 @@ public class ETLServiceImpl implements ETLService {
 	            }
 
 	            // get Organization
-	            if (hasReference(fhirServiceRequest.getLocationReferenceFirstRep())) {
-	                String oString = fhirServiceRequest.getLocationReferenceFirstRep().getReference();
-	                log.trace("reading " + oString);
-	                fhirOrganization = localFhirClient.read()//
-	                        .resource(Organization.class)//
-	                        .withId(oString)//
-	                        .execute();
-	            } else {
-	                log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
-	                        + " is missing a location reference");
+	            try {
+	                if (hasReference(fhirServiceRequest.getLocationReferenceFirstRep())) {
+	                    String idString = fhirServiceRequest.getLocationReferenceFirstRep().getReference();
+	                    log.debug("convertToEtlRecords:search for Location.basedOn: " + idString );
+	                    fhirOrganization = localFhirClient.read()//
+	                            .resource(Organization.class)//
+	                            .withId(idString)//
+	                            .execute();
+	                } else {
+	                    log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+	                            + " is missing a location reference");
+	                }
+	            } catch () {
+                    log.debug("convertToEtlRecords:Resource not found" + idString );
 	            }
 
 	            // get Practitioner
-	            if (hasReference(fhirServiceRequest.getRequester())) {
-	                String pracString = fhirServiceRequest.getRequester().getReference();
-	                log.trace("reading " + pracString);
-	                fhirPractitioner = localFhirClient.read()//
-	                        .resource(Practitioner.class)//
-	                        .withId(pracString)//
-	                        .execute();
-	            } else {
-	                log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
-	                        + " is missing a requester reference");
+	            try {
+	                if (hasReference(fhirServiceRequest.getRequester())) {
+	                    String idString = fhirServiceRequest.getRequester().getReference();
+	                    log.debug("convertToEtlRecords:search for Location.basedOn: " + idString );
+	                    fhirPractitioner = localFhirClient.read()//
+	                            .resource(Practitioner.class)//
+	                            .withId(idString)//
+	                            .execute();
+	                } else {
+	                    log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+	                            + " is missing a requester reference");
+	                }
+	            } catch () {
+	                log.debug("convertToEtlRecords:Resource not found" + idString );
 	            }
 
 	            // get Patient
-	            if (hasReference(fhirServiceRequest.getSubject())) {
-	                String patString = fhirServiceRequest.getSubject().getReference();
-	                log.trace("reading " + patString);
-	                fhirPatient = localFhirClient.read()//
-	                        .resource(Patient.class)//
-	                        .withId(patString)//
-	                        .execute();
-	            } else {
-	                log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
-	                        + " is missing a subject reference");
+	            try {
+	                if (hasReference(fhirServiceRequest.getSubject())) {
+	                    String idString = fhirServiceRequest.getSubject().getReference();
+	                    log.debug("convertToEtlRecords:search for Location.basedOn: " + idString );
+	                    fhirPatient = localFhirClient.read()//
+	                            .resource(Patient.class)//
+	                            .withId(idString)//
+	                            .execute();
+	                } else {
+	                    log.warn("serviceRequest with id: " + fhirServiceRequest.getIdElement().getIdPart()
+	                            + " is missing a subject reference");
+	                }
+	            } catch () {
+	                log.debug("convertToEtlRecords:Resource not found" + idString );
 	            }
 
 	            // get Specimen
